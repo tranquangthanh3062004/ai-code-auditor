@@ -1,158 +1,155 @@
-﻿<div align="center">
+﻿# CodeTrust AI (VibeAuditor)
 
-# 🛡️ CodeTrust AI (VibeAuditor)
+> **Nền tảng Thẩm định Chất lượng, An toàn Bảo mật & Nghiệm thu Code AI dành cho Non-Tech Founders, Product Managers và Nhà Quản lý.**
 
-**Nền tảng Thẩm định Chất lượng, Bảo mật & Nghiệm thu Code AI dành cho Non-Tech Founders, PMs và Nhà Quản lý**
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Node: >=20](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen.svg)](https://nodejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue.svg)](https://www.typescriptlang.org/)
-[![Tests: Passing](https://img.shields.io/badge/Tests-Passing-success.svg)](#)
-
-[Khởi Chạy Nhanh](#-khởi-chạy-nhanh-quickstart) • [Tính Năng Cốt Lõi](#-tính-năng-cốt-lõi) • [Kiến Trúc](#-kiến-trúc-hệ-thống) • [API Lập Trình](#-sử-dụng-qua-thư-viện-programmatic-api) • [Quy Tắc Quét](#-danh-mục-quy-tắc-bảo-mật-mặc-định)
-
-</div>
+[![CI Suite](https://github.com/tranquangthanh3062004/ai-code-auditor/actions/workflows/ci.yml/badge.svg)](https://github.com/tranquangthanh3062004/ai-code-auditor/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node: >=20](https://img.shields.io/badge/Node-%3E%3D20-green.svg)](https://nodejs.org)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 ---
 
-## 🎯 Vấn Đề Thực Tế (The AI Verification Crisis)
+## 🎯 Vấn Đề Giải Quyết
 
-Trong kỷ nguyên Generative AI, các công cụ như Cursor, Lovable, Bolt.new, v0 cho phép bất kỳ ai cũng có thể tạo ra hàng ngàn dòng code chỉ trong vài phút. **Tuy nhiên, người không chuyên kỹ thuật (Non-Tech Founders, Giám đốc, Product Managers, Khách hàng thuê ngoài) hoàn toàn bất lực trong việc kiểm chứng xem mã nguồn đó có chuẩn, an toàn và hoạt động đúng yêu cầu hay không.**
+Trong kỷ nguyên bùng nổ của **AI Coding (Cursor, Claude Code, GitHub Copilot, v.v.)**, tốc độ viết code đã tăng gấp hàng chục lần. Tuy nhiên, người trả tiền và quản lý dự án (Founders, PMs, Chủ doanh nghiệp không biết lập trình) đang gặp phải nỗi đau lớn:
 
-Họ không thể hiểu `git diff` xanh đỏ hay các dòng log terminal phức tạp.
+1. **Không biết code do AI sinh ra có chạy đúng và an toàn không.**
+2. **Không phân biệt được mã nguồn an toàn với mã nguồn chứa lỗ hổng chết người** (lộ khóa API, lộ mật khẩu Database, dính SQL Injection, XSS).
+3. **Mất hàng giờ đọc tài liệu kỹ thuật phức tạp** thay vì chỉ cần một kết luận ngắn gọn và một kịch bản nghiệm thu mắt thấy.
 
-**CodeTrust AI ra đời để trở thành "Trọng tài thẩm định độc lập"**:
-- 💡 **Dịch thuật Kỹ thuật ➔ Ngôn ngữ Kinh doanh**: Giải thích chính xác tính năng mới làm được gì, rủi ro tiềm ẩn là gì bằng tiếng Việt đời thường.
-- 🛡️ **Bảng điểm Tin cậy (Trust Scorecard)**: Chấm điểm minh bạch theo trọng số: Bảo mật (40%), Logic nghiệp vụ (35%), Ổn định giao diện (25%).
-- 🔍 **Quét Bảo Mật Tất Định (Zero Hallucination)**: Bắt 100% các lỗ hổng lộ API Key, Token, SQL Injection, XSS, eval() độc hại mà không bị ảo giác.
-- ✅ **Checklist Nghiệm Thu 3 Bước (Interactive UAT)**: Sinh kịch bản kiểm thử dễ dàng để người non-tech tự bấm thử trên trình duyệt và ký duyệt nghiệm thu.
-- 📊 **Báo Cáo HTML Độc Lập (Single-File Self-Contained)**: Xuất file HTML phong cách Dark Mode & Glassmorphism sang trọng, tự động mở trên trình duyệt.
+**CodeTrust AI ra đời để giải quyết triệt để vấn đề này:** Quét toàn bộ mã nguồn, dịch mọi thuật ngữ kỹ thuật sang ngôn ngữ kinh doanh dễ hiểu, chấm điểm chất lượng và sinh kịch bản nghiệm thu 3 bước trực quan.
 
 ---
 
-## 🚀 Khởi Chạy Nhanh (Quickstart)
+## ✨ Tính Năng Nổi Bật
 
-### 1. Cài đặt Dependencies
-```bash
-pnpm install --ignore-scripts
-# hoặc: npm install
-```
-
-### 2. Cấu hình biến môi trường (Tùy chọn)
-Sao chép `.env.example` thành `.env` nếu bạn muốn kích hoạt DeepSeek AI:
-```env
-DEEPSEEK_API_KEY=sk-your-deepseek-api-key
-```
-*(Lưu ý: Nếu không có API Key hoặc hết số dư, hệ thống sẽ tự động kích hoạt **Heuristic Fallback Engine** để không bao giờ làm gián đoạn việc quét mã).*
-
-### 3. Thẩm định một Thư mục hoặc Dự án bất kỳ
-```bash
-# Quét dự án mẫu có lỗ hổng:
-pnpm run audit samples/sample-vulnerable
-
-# Quét dự án mẫu an toàn:
-pnpm run audit samples/sample-secure
-
-# Quét bất kỳ thư mục nào trên máy:
-pnpm run audit C:/path/to/your/project
-```
-Hệ thống sẽ quét, chấm điểm và **tự động mở báo cáo HTML trực quan trên trình duyệt** của bạn!
+- 🌐 **Giao Diện Web UI Trực Quan**: Kéo thả thư mục dự án trên trình duyệt, xem biểu đồ điểm số thời gian thực mà không cần chạm vào terminal.
+- 🛡️ **Zero-Hallucination Static Scanner**: 11 quy tắc bảo mật tĩnh đối chiếu không gây ảo giác (quét lộ API Key, Token, SQLi, XSS, eval, LocalStorage JWT, v.v.).
+- 🤖 **DeepSeek Semantic Reasoning**: Tóm tắt tác động nghiệp vụ (Executive Summary) và phân tích logic bằng AI (hỗ trợ Fallback Engine offline khi không có kết nối).
+- 📊 **Bảng Điểm Trọng Số (Scorecard)**: Đánh giá 4 chỉ số cốt lõi: Điểm Tổng Thể, An Toàn Bảo Mật, Logic Nghiệp Vụ, và Ổn Định Giao Diện theo thang hạng `A+`, `A`, `B`, `C`, `F`.
+- ✅ **Kịch Bản Nghiệm Thu 3 Bước (Interactive UAT)**: Checklist rõ ràng, chi tiết từng thao tác click và kết quả mắt thấy cho người dùng.
+- 🔄 **GitHub Actions CI/CD Quality Gate**: Tự động review Pull Request, đăng bình luận sticky comment và khóa merge nếu phát hiện lỗ hổng `CRITICAL`.
+- 📑 **Báo Cáo HTML Độc Lập & Xuất PDF**: Xuất file báo cáo đẹp mắt để gửi đối tác hoặc lưu trữ hồ sơ bàn giao.
 
 ---
 
-## 💻 Sử Dụng Dòng Lệnh (CLI Usage)
+## 🚀 Hướng Dẫn Sử Dụng
+
+### 1. Cài đặt & Khởi động Web UI (Khuyên Dùng Cho Non-Tech)
 
 ```bash
-Usage: codetrust [path] [options]
+# Clone dự án
+git clone https://github.com/tranquangthanh3062004/ai-code-auditor.git
+cd ai-code-auditor
 
-Arguments:
-  path                 Đường dẫn thư mục dự án cần thẩm định (mặc định: '.')
+# Cài đặt dependencies
+pnpm install
 
-Options:
-  -o, --output <file>  Đường dẫn file HTML báo cáo xuất ra (mặc định: 'audit-report.html')
-  --no-open            Không tự động mở trình duyệt sau khi xuất báo cáo
-  --json               Xuất kết quả thẩm định dạng JSON thô ra terminal
-  -h, --help           Hiển thị trợ giúp
+# Khởi động Web UI Server
+pnpm run server
+```
+
+👉 Mở trình duyệt tại: **`http://localhost:4000`**
+
+---
+
+### 2. Sử dụng dòng lệnh CLI (Dành Cho Developer)
+
+```bash
+# Thẩm định thư mục hiện tại
+pnpm run audit .
+
+# Thẩm định một dự án cụ thể và lưu báo cáo
+pnpm run audit /path/to/project -o report.html
+
+# Xuất dữ liệu thô dạng JSON
+pnpm run audit /path/to/project --json
 ```
 
 ---
 
-## 📦 Sử Dụng Qua Thư Viện (Programmatic API)
+## 🛡️ 11 Quy Tắc Bảo Mật Tĩnh (Deterministic Rules)
 
-Bạn có thể tích hợp CodeTrust AI vào hệ thống CI/CD, bot Discord/Slack, hoặc Webhook của riêng bạn:
-
-```typescript
-import { auditProject } from 'ai-code-auditor';
-
-const { report, htmlContent } = await auditProject('./my-web-app', {
-  outputPath: './custom-report.html',
-  generateHtml: true,
-});
-
-console.log('Điểm tổng thể:', report.scores.overall);
-console.log('Xếp hạng:', report.scores.grade); // A+, A, B, C, F
-console.log('Kết luận:', report.executiveSummary.verdict); // APPROVED | NEEDS_REVIEW | REJECTED
-console.log('Số lỗ hổng phát hiện:', report.securityFindings.length);
-```
+| Mã Quy Tắc | Mức Độ | Tên Lỗ Hổng | Tác Động Khi Bị Khai Thác |
+|---|---|---|---|
+| **SEC-001** | `CRITICAL` | Lộ Khóa API OpenAI / DeepSeek | Bị kẻ xấu dùng trộm tài khoản AI và tiêu hết hạn mức tiền |
+| **SEC-002** | `CRITICAL` | Lộ GitHub Personal Access Token | Bị xóa mã nguồn hoặc đánh cắp toàn bộ quyền kho lưu trữ |
+| **SEC-003** | `CRITICAL` | Lộ Khóa AWS Access Key ID | Bị tạo máy ảo đào tiền ảo trái phép, phát sinh hóa đơn lớn |
+| **SEC-004** | `CRITICAL` | Lộ Private Key RSA / SSH | Kẻ xấu giải mã dữ liệu mạng hoặc giả mạo máy chủ |
+| **SEC-005** | `CRITICAL` | Lộ Mật Khẩu Database trong Connection String | Toàn bộ dữ liệu khách hàng bị tải về hoặc xóa sạch |
+| **SEC-006** | `HIGH` | Lỗ Hổng Tiêm Mã SQL (SQL Injection) | Kẻ xấu nhập ký tự đặc biệt để đọc trộm tài khoản người khác |
+| **SEC-007** | `HIGH` | Lệnh Thực Thi Mã Tùy Ý `eval()` | Kẻ tấn công có thể chạy lệnh tùy ý trên server |
+| **SEC-008** | `HIGH` | Lỗ Hổng XSS qua raw `innerHTML` | Đánh cắp phiên đăng nhập và cookie của người dùng web |
+| **SEC-009** | `MEDIUM` | Lưu JWT / Token vào `LocalStorage` | Extension độc hại có thể đọc trộm phiên đăng nhập |
+| **SEC-010** | `HIGH` | Tắt Kiểm Tra Chứng Chỉ SSL/TLS | Dữ liệu bị đọc trộm trên đường truyền mạng (Man-in-the-Middle) |
+| **SEC-011** | `CRITICAL` | Tiêm Mã Lệnh Hệ Thống (Command Injection) | Kẻ xấu thực thi lệnh shell can thiệp trực tiếp vào hệ điều hành |
 
 ---
 
-## 🏗️ Kiến Trúc Hệ Thống (Architecture)
+## 🧪 Chạy Kiểm Thử Tự Động (Automated Tests)
 
-Hệ thống được thiết kế theo mô hình **Hybrid 4-Layer Pipeline**:
-
-```
-[ ĐẦU VÀO: MÃ NGUỒN DỰ ÁN ]
-               │
-               ▼
-┌─────────────────────────────────────────────────────────────┐
-│ 1. HEURISTIC FRAMEWORK & PROJECT DETECTOR                   │
-│    Tự động dò Next.js, Vite, React, Vue, Express, Python...  │
-│    Khử ký tự BOM UTF-8, đếm số file và dòng code.           │
-├─────────────────────────────────────────────────────────────┤
-│ 2. DETERMINISTIC SECURITY SCANNER (ZERO HALLUCINATION)      │
-│    Bộ quy tắc AST/Regex bắt 100% lộ API Key, SQLi, XSS,     │
-│    Insecure eval, Database credentials...                   │
-├─────────────────────────────────────────────────────────────┤
-│ 3. DEEPSEEK REASONER & HEURISTIC FALLBACK ENGINE            │
-│    Phân tích logic nghiệp vụ, đối chiếu yêu cầu, dịch thuật  │
-│    sang tiếng Việt kinh doanh, sinh kịch bản UAT.           │
-├─────────────────────────────────────────────────────────────┤
-│ 4. SINGLE-FILE HTML GENERATOR & SCORECARD CALCULATOR        │
-│    Tính điểm có trọng số (Security 40%, Logic 35%, UI 25%)   │
-│    Xuất file HTML độc lập, mở ngay trên trình duyệt.        │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 🛡️ Danh Mục Quy Tắc Bảo Mật Mặc Định
-
-| Mã Quy Tắc | Mức Độ | Tên Lỗ Hổng / Rủi Ro |
-|---|---|---|
-| `SEC-001` | **CRITICAL** | Lộ Khóa API OpenAI / DeepSeek (`sk-...`) trong code |
-| `SEC-002` | **CRITICAL** | Lộ GitHub Personal Access Token (`ghp_...`) |
-| `SEC-003` | **CRITICAL** | Lộ Khóa AWS Access Key ID (`AKIA...`) |
-| `SEC-004` | **CRITICAL** | Lộ Private Key RSA / SSH (`-----BEGIN PRIVATE KEY-----`) |
-| `SEC-005` | **CRITICAL** | Lộ chuỗi kết nối Database chứa mật khẩu trực tiếp |
-| `SEC-006` | **HIGH** | Tấn công Tiêm mã SQL (SQL Injection qua template literal) |
-| `SEC-007` | **HIGH** | Thực thi mã tùy ý không an toàn (`eval()`, `Function()`) |
-| `SEC-008` | **HIGH** | Tấn công XSS qua `dangerouslySetInnerHTML` / `raw innerHTML` |
-| `SEC-009` | **MEDIUM** | Lưu trữ token / mật khẩu vào LocalStorage trình duyệt |
-| `SEC-010` | **HIGH** | Tắt kiểm tra chứng chỉ bảo mật SSL (`rejectUnauthorized: false`) |
-
----
-
-## 🧪 Chạy Kiểm Thử Tự Động (Testing)
+CodeTrust AI đi kèm 10 kịch bản kiểm thử toàn diện:
 
 ```bash
 pnpm test
 ```
-Toàn bộ 5 bài kiểm tra tích hợp sẽ chạy và xác minh tính đúng đắn của Heuristic Detector, Scanner, Calculator và HTML Generator.
+
+```
+✔ 1. HeuristicDetector should inspect Express framework and source files
+✔ 2. DeterministicScanner should detect Critical API key leak and SQL Injection
+✔ 3. DeterministicScanner should detect eval, innerHTML, localStorage token, and TLS disable in sample-xss
+✔ 4. DeterministicScanner should find ZERO vulnerabilities on secure sample
+✔ 5. ScorecardCalculator should appropriately penalize vulnerable project and reward clean project
+✔ 6. ScorecardCalculator grade boundaries (A+, A, B, C, F)
+✔ 7. DeepSeekAuditor should gracefully fallback to heuristic analysis when offline
+✔ 8. HtmlReportGenerator should render complete valid HTML with custom titles and cards
+✔ 9. auditProject high-level API should produce full report with HTML for SECURE sample
+✔ 10. auditProject high-level API should REJECT vulnerable sample with Critical findings
+```
 
 ---
 
-## 📄 Bản Quyền (License)
+## 📂 Cấu Trúc Dự Án
 
-Phát hành dưới giấy phép [MIT License](LICENSE).  
-Bản quyền © 2026 **Tran Quang Thanh** (`tranquangthanh3062004@gmail.com`).
+```
+ai-code-auditor/
+├── .github/
+│   ├── workflows/
+│   │   ├── ci.yml                 # CI Build & Self-Audit Gate
+│   │   └── pr-audit.yml           # PR Review & Sticky Comment Bot
+│   └── PULL_REQUEST_TEMPLATE.md   # Template mở PR chuẩn an toàn
+├── docs/
+│   ├── web-ui-guide.md            # Hướng dẫn sử dụng Web UI
+│   └── ci-cd-setup.md             # Hướng dẫn cấu hình GitHub Actions
+├── samples/
+│   ├── sample-vulnerable/         # Dự án mẫu chứa lỗi Critical (API Key, SQLi)
+│   ├── sample-secure/             # Dự án mẫu chuẩn A+ an toàn
+│   └── sample-xss/                # Dự án mẫu chứa eval, XSS, TLS disable
+├── server/
+│   └── index.ts                   # Express API Server & Web UI static host
+├── src/
+│   ├── cli/bin.ts                 # CLI entrypoint (codetrust command)
+│   ├── engine/
+│   │   ├── deepseek-client.ts     # AI Semantic Reasoning & Fallback Engine
+│   │   ├── deterministic-rules.ts # 11 Static Security Rules
+│   │   └── heuristic-detector.ts  # Framework & Code Scanner
+│   ├── reporter/
+│   │   ├── html-generator.ts      # Standalone HTML report generator
+│   │   └── scorecard.ts           # Weighted scorecard calculation
+│   └── types/audit.ts             # Zod schema definitions
+├── web/
+│   ├── index.html                 # Web UI Dashboard
+│   ├── style.css                  # Dark Mode & Glassmorphism design system
+│   └── app.js                     # Frontend interactive logic
+├── tests/
+│   └── audit.test.ts              # 10 automated unit test cases
+├── Makefile                       # Development shortcuts
+├── package.json
+└── tsconfig.json
+```
+
+---
+
+## 📄 Bản Quyền & Đóng Góp
+
+Dự án phát hành dưới giấy phép mã nguồn mở [MIT License](LICENSE). Mọi đóng góp (Pull Request, Issue) đều được hoan nghênh theo [CONTRIBUTING.md](CONTRIBUTING.md).
