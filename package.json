@@ -8,6 +8,19 @@
   "bin": {
     "codetrust": "./dist/cli/bin.js"
   },
+  "files": [
+    "dist",
+    "skills",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "test": "tsx --test tests/audit.test.ts",
@@ -22,7 +35,8 @@
     "non-tech",
     "security-scanner",
     "deepseek",
-    "verification"
+    "verification",
+    "quality-assurance"
   ],
   "author": "Tran Quang Thanh <tranquangthanh3062004@gmail.com>",
   "license": "MIT",
