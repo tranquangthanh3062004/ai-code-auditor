@@ -1,0 +1,328 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeTrust AI • Nền Tảng Thẩm Định Code Cho Non-Tech</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Ambient background glow effects -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <div class="app-layout">
+    <!-- Navigation Header -->
+    <header class="app-header">
+      <div class="header-container">
+        <div class="brand">
+          <div class="brand-logo">
+            <span class="logo-shield">🛡️</span>
+          </div>
+          <div class="brand-text">
+            <div class="brand-title">CodeTrust <span class="brand-badge">AI</span></div>
+            <div class="brand-subtitle">VibeAuditor • Non-Tech Verification Platform</div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <div class="status-pill">
+            <span class="status-dot"></span>
+            <span id="server-status-text">Hệ thống sẵn sàng</span>
+          </div>
+          <a href="https://github.com/tranquangthanh3062004/ai-code-auditor" target="_blank" class="btn-github">
+            <svg height="18" width="18" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+            GitHub Repo
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+      <!-- HERO & AUDIT INPUT SECTION -->
+      <section id="input-section" class="card hero-card">
+        <div class="hero-content">
+          <div class="hero-tag">🚀 DÀNH CHO FOUNDERS, PMS VÀ NGƯỜI QUẢN LÝ KHÔNG BIẾT CODE</div>
+          <h1 class="hero-title">
+            Thẩm Định & Nghiệm Thu Code AI<br />
+            <span class="gradient-text">Chính Xác • Minh Bạch • An Toàn</span>
+          </h1>
+          <p class="hero-desc">
+            Không cần đọc code phức tạp. CodeTrust AI quét toàn bộ dự án, phát hiện lỗ hổng bảo mật chết người, dịch rủi ro sang ngôn ngữ kinh doanh và tạo kịch bản 3 bước để bạn tự kiểm chứng.
+          </p>
+        </div>
+
+        <!-- 3 Upload / Input Tabs -->
+        <div class="audit-box">
+          <div class="tabs-nav">
+            <button class="tab-btn active" data-tab="tab-folder" id="tab-btn-folder">📁 Chọn Thư Mục Dự Án</button>
+            <button class="tab-btn" data-tab="tab-path" id="tab-btn-path">💻 Nhập Đường Dẫn Máy Tính</button>
+            <button class="tab-btn" data-tab="tab-samples" id="tab-btn-samples">⚡ Dùng Thử Mẫu Demo</button>
+          </div>
+
+          <!-- TAB 1: Folder Drag & Drop -->
+          <div class="tab-content active" id="tab-folder">
+            <div class="drop-zone" id="drop-zone">
+              <input type="file" id="folder-input" webkitdirectory directory multiple style="display: none;" />
+              <div class="drop-icon">📂</div>
+              <div class="drop-title">Kéo thả hoặc nhấp để chọn thư mục mã nguồn</div>
+              <div class="drop-hint">Trình duyệt sẽ tự động đọc danh sách file và gửi tới bộ máy thẩm định</div>
+              <button class="btn btn-primary" onclick="document.getElementById('folder-input').click()">
+                Chọn Thư Mục Từ Máy Tính
+              </button>
+              <div id="selected-folder-info" class="selected-folder-info" style="display: none;"></div>
+            </div>
+          </div>
+
+          <!-- TAB 2: Local Path -->
+          <div class="tab-content" id="tab-path">
+            <div class="path-form">
+              <label for="path-input" class="form-label">Đường dẫn thư mục dự án trên máy:</label>
+              <div class="input-group">
+                <input type="text" id="path-input" class="form-input" placeholder="Ví dụ: E:\project\my-web-app hoặc ." value="." />
+                <button class="btn btn-primary" id="btn-audit-path">Bắt Đầu Thẩm Định</button>
+              </div>
+              <div class="form-hint">Tip: Gõ dấu <code>.</code> để thẩm định ngay dự án hiện tại.</div>
+            </div>
+          </div>
+
+          <!-- TAB 3: 1-Click Interactive Demos -->
+          <div class="tab-content" id="tab-samples">
+            <div class="demo-cards-grid">
+              <div class="demo-card demo-vulnerable" onclick="runSampleAudit('vulnerable')">
+                <div class="demo-badge danger">🚨 Cực Kỳ Nguy Hiểm</div>
+                <div class="demo-title">E-Commerce API Lộ Khóa & SQLi</div>
+                <div class="demo-desc">Chứa khóa bí mật AI ghi thẳng vào code và lỗ hổng tiêm mã SQL Injection.</div>
+                <button class="btn btn-sm btn-outline-danger">Thẩm Định Mẫu Này →</button>
+              </div>
+
+              <div class="demo-card demo-secure" onclick="runSampleAudit('secure')">
+                <div class="demo-badge success">🛡️ Đạt Chuẩn A+</div>
+                <div class="demo-title">Cổng Thanh Toán Chuẩn An Toàn</div>
+                <div class="demo-desc">Mã nguồn sạch sẽ, biến môi trường bảo mật, không có lỗ hổng nguy hiểm.</div>
+                <button class="btn btn-sm btn-outline-success">Thẩm Định Mẫu Này →</button>
+              </div>
+
+              <div class="demo-card demo-xss" onclick="runSampleAudit('xss')">
+                <div class="demo-badge warning">⚠️ Lỗ Hổng Web & XSS</div>
+                <div class="demo-title">Web App Dùng Insecure eval()</div>
+                <div class="demo-desc">Chứa lệnh eval(), chèn innerHTML thô, tắt bảo mật TLS và lưu JWT sai chỗ.</div>
+                <button class="btn btn-sm btn-outline-warning">Thẩm Định Mẫu Này →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LIVE PROGRESS STATE -->
+      <section id="progress-section" class="card progress-card" style="display: none;">
+        <div class="scanning-animation">
+          <div class="radar-spinner"></div>
+        </div>
+        <h2 id="progress-status-title" class="progress-title">Đang khởi động phân tích mã nguồn...</h2>
+        <p id="progress-status-desc" class="progress-desc">Hệ thống đang quét cấu trúc thư mục, nhận diện framework và kiểm tra các quy tắc bảo mật tĩnh...</p>
+        
+        <div class="audit-steps-checklist">
+          <div class="step-line active" id="step-tree">
+            <span class="step-bullet">1</span>
+            <span>Khám phá cây tệp & nhận diện Framework</span>
+          </div>
+          <div class="step-line" id="step-rules">
+            <span class="step-bullet">2</span>
+            <span>Quét 11 quy tắc bảo mật tĩnh (Zero-Hallucination)</span>
+          </div>
+          <div class="step-line" id="step-ai">
+            <span class="step-bullet">3</span>
+            <span>Trí tuệ nhân tạo phân tích logic & sinh kịch bản UAT</span>
+          </div>
+          <div class="step-line" id="step-score">
+            <span class="step-bullet">4</span>
+            <span>Tính điểm trọng số & xuất báo cáo thẩm định</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- AUDIT RESULTS DASHBOARD -->
+      <section id="results-section" class="results-container" style="display: none;">
+        <!-- Action Toolbar -->
+        <div class="results-toolbar card">
+          <div class="toolbar-left">
+            <button class="btn btn-secondary btn-sm" onclick="resetToInput()">← Thẩm Định Dự Án Khác</button>
+            <span class="audit-id-tag" id="report-audit-id">AUDIT-0000</span>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ In / Xuất PDF</button>
+            <button class="btn btn-primary btn-sm" id="btn-download-html" onclick="downloadHtmlReport()">📥 Tải File Báo Cáo HTML</button>
+          </div>
+        </div>
+
+        <!-- Verdict Banner -->
+        <div class="verdict-banner-card card" id="verdict-card">
+          <div class="verdict-info">
+            <div class="verdict-chip" id="verdict-chip">ĐẠT CHUẨN NGHIỆM THU</div>
+            <h2 class="verdict-headline" id="verdict-headline">Mã nguồn an toàn và sẵn sàng triển khai thử nghiệm</h2>
+            <p class="verdict-recommendation" id="verdict-rec">Đủ điều kiện để người dùng tiến hành nghiệm thu thực tế theo kịch bản 3 bước.</p>
+          </div>
+          <div class="verdict-grade-box">
+            <div class="grade-label">XẾP HẠNG</div>
+            <div class="grade-badge" id="grade-badge">A+</div>
+          </div>
+        </div>
+
+        <!-- 4 Score Cards -->
+        <div class="scores-grid">
+          <div class="score-box card">
+            <div class="score-header">
+              <span class="score-icon">📊</span>
+              <span class="score-name">Điểm Tổng Thể</span>
+            </div>
+            <div class="score-value" id="score-overall">95/100</div>
+            <div class="score-progress-bar">
+              <div class="score-progress-fill fill-overall" id="bar-overall" style="width: 95%;"></div>
+            </div>
+            <div class="score-desc">Trọng số kết hợp Bảo mật (40%), Logic (35%), UI (25%)</div>
+          </div>
+
+          <div class="score-box card">
+            <div class="score-header">
+              <span class="score-icon">🛡️</span>
+              <span class="score-name">An Toàn Bảo Mật</span>
+            </div>
+            <div class="score-value" id="score-security">100/100</div>
+            <div class="score-progress-bar">
+              <div class="score-progress-fill fill-security" id="bar-security" style="width: 100%;"></div>
+            </div>
+            <div class="score-desc">Khóa API, Token, SQLi, XSS, TLS, Command Injection</div>
+          </div>
+
+          <div class="score-box card">
+            <div class="score-header">
+              <span class="score-icon">💡</span>
+              <span class="score-name">Logic & Nghiệp Vụ</span>
+            </div>
+            <div class="score-value" id="score-logic">90/100</div>
+            <div class="score-progress-bar">
+              <div class="score-progress-fill fill-logic" id="bar-logic" style="width: 90%;"></div>
+            </div>
+            <div class="score-desc">Độ hoàn thiện logic và xử lý ngoại lệ nghiệp vụ</div>
+          </div>
+
+          <div class="score-box card">
+            <div class="score-header">
+              <span class="score-icon">🎯</span>
+              <span class="score-name">Ổn Định Giao Diện</span>
+            </div>
+            <div class="score-value" id="score-visual">95/100</div>
+            <div class="score-progress-bar">
+              <div class="score-progress-fill fill-visual" id="bar-visual" style="width: 95%;"></div>
+            </div>
+            <div class="score-desc">Tính sẵn sàng và mượt mà cho trải nghiệm người dùng</div>
+          </div>
+        </div>
+
+        <!-- Project Metadata Card -->
+        <div class="meta-details-card card">
+          <div class="meta-item">
+            <span class="meta-label">Tên Dự Án:</span>
+            <strong class="meta-val" id="meta-project-name">my-project</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Nền Tảng / Framework:</span>
+            <strong class="meta-val" id="meta-framework">Node.js Express</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Quy Mô:</span>
+            <strong class="meta-val" id="meta-files">12 tệp • 1,240 dòng code</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Thời Gian Quét:</span>
+            <strong class="meta-val" id="meta-timestamp">2026-09-06 19:30</strong>
+          </div>
+        </div>
+
+        <!-- Executive Summary Section -->
+        <div class="section-card card">
+          <div class="section-heading">
+            <span class="heading-icon">📋</span>
+            <h3>Tóm Tắt Dành Cho Nhà Quản Lý (Executive Summary)</h3>
+          </div>
+          <div class="business-impact-box" id="summary-business-impact">
+            Tính năng mới đã được cấu hình thành công và sẵn sàng để nghiệm thu.
+          </div>
+          <div class="risks-container">
+            <div class="risks-title">⚠️ Rủi ro cần lưu ý trước khi bấm duyệt:</div>
+            <ul class="risks-list" id="summary-risks-list">
+              <li>Không phát hiện rủi ro nghiêm trọng.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Security Findings Section -->
+        <div class="section-card card">
+          <div class="section-heading-with-badge">
+            <div class="heading-left">
+              <span class="heading-icon">🚨</span>
+              <h3>Danh Sách Rủi Ro & Lỗ Hổng Bảo Mật</h3>
+            </div>
+            <span class="findings-count-badge" id="findings-count-badge">0 Vấn đề</span>
+          </div>
+
+          <!-- Filter Pills -->
+          <div class="filter-pills" id="finding-filters">
+            <button class="pill-btn active" data-filter="ALL" onclick="filterFindings('ALL')">Tất cả (<span id="count-all">0</span>)</button>
+            <button class="pill-btn pill-danger" data-filter="CRITICAL" onclick="filterFindings('CRITICAL')">Critical (<span id="count-crit">0</span>)</button>
+            <button class="pill-btn pill-warning" data-filter="HIGH" onclick="filterFindings('HIGH')">High (<span id="count-high">0</span>)</button>
+            <button class="pill-btn pill-medium" data-filter="MEDIUM" onclick="filterFindings('MEDIUM')">Medium (<span id="count-med">0</span>)</button>
+          </div>
+
+          <div class="findings-list" id="findings-container">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Interactive UAT 3-Step Section -->
+        <div class="section-card card">
+          <div class="section-heading">
+            <span class="heading-icon">✅</span>
+            <div>
+              <h3>Kịch Bản Nghiệm Thu 3 Bước Cho Người Dùng (Interactive UAT)</h3>
+              <p class="section-subtitle">Bạn không cần biết code. Hãy làm lần lượt các bước dưới đây để tự mình kiểm chứng xem ứng dụng có hoạt động đúng không:</p>
+            </div>
+          </div>
+
+          <div class="uat-progress-bar-container">
+            <div class="uat-progress-label">
+              <span>Tiến độ nghiệm thu:</span>
+              <strong id="uat-progress-text">0/3 bước hoàn tất</strong>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill uat-fill" id="uat-progress-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <div class="uat-steps-list" id="uat-steps-container">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div class="footer-container">
+        <p>CodeTrust AI (VibeAuditor) • Nền Tảng Đánh Giá & Thẩm Định Code Cho Non-Tech Founders & PMs</p>
+        <p class="footer-sub">Phát triển với Zero-Hallucination Deterministic Engine + DeepSeek Semantic Reasoning</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

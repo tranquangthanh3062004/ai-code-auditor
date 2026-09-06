@@ -93,6 +93,14 @@ export class DeterministicScanner {
       pattern: /rejectUnauthorized\s*:\s*false/g,
       plainExplanation: 'Hệ thống đang bỏ qua việc kiểm tra chứng chỉ an toàn khi kết nối mạng. Dữ liệu gửi đi có thể bị chặn và đọc trộm trên đường truyền (Man-in-the-Middle).',
       remediation: 'Bật kiểm tra chứng chỉ SSL/TLS chuẩn (rejectUnauthorized: true) khi triển khai môi trường thật.',
+    },
+    {
+      id: 'SEC-011',
+      severity: 'CRITICAL',
+      title: 'Nguy cơ Tiêm mã Lệnh hệ thống (Command Injection)',
+      pattern: /(child_process|exec|execSync)\s*\(\s*`[^`]*\$\{/g,
+      plainExplanation: 'Hệ thống truyền trực tiếp biến người dùng vào lệnh thực thi dòng lệnh hệ điều hành. Kẻ tấn công có thể gõ lệnh xóa file hoặc cài backdoor.',
+      remediation: 'Sử dụng execFile hoặc spawn với mảng tham số riêng biệt thay vì ghép chuỗi vào shell exec.',
     }
   ];
 
@@ -157,8 +165,7 @@ export class DeterministicScanner {
 
   private maskSensitive(line: string, matchStr: string): string {
     if (matchStr.length <= 8) return line;
-    const masked = matchStr.substring(0, 4) + '••••••••' + matchStr.substring(matchStr.length - 4);
+    const masked = matchStr.substring(0, 4) + '        ' + matchStr.substring(matchStr.length - 4);
     return line.replace(matchStr, masked);
   }
 }
-

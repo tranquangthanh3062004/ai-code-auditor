@@ -1,0 +1,13 @@
+﻿{
+  "name": "ai-sample-xss-app",
+  "version": "1.0.0",
+  "description": "Vulnerable app demonstrating DOM XSS, eval execution, and TLS misconfiguration",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "axios": "^1.7.2"
+  }
+}

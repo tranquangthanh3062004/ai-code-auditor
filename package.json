@@ -1,6 +1,6 @@
 ﻿{
   "name": "ai-code-auditor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "AI Code Quality, Security & Visual Verification Platform for Non-Tech Stakeholders",
   "type": "module",
   "main": "dist/index.js",
@@ -10,6 +10,7 @@
   },
   "files": [
     "dist",
+    "web",
     "skills",
     "README.md",
     "LICENSE",
@@ -24,7 +25,11 @@
   "scripts": {
     "build": "tsc",
     "test": "tsx --test tests/audit.test.ts",
-    "dev": "tsx src/cli/bin.ts",
+    "dev": "concurrently -n \"SERVER,VITE\" -c \"cyan,magenta\" \"tsx watch server/index.ts\" \"vite web --port 5173\"",
+    "dev:server": "tsx watch server/index.ts",
+    "dev:web": "vite web --port 5173",
+    "server": "tsx server/index.ts",
+    "ui": "tsx server/index.ts",
     "audit": "tsx src/cli/bin.ts",
     "prepublishOnly": "pnpm run build"
   },
@@ -36,7 +41,8 @@
     "security-scanner",
     "deepseek",
     "verification",
-    "quality-assurance"
+    "quality-assurance",
+    "web-ui"
   ],
   "author": "Tran Quang Thanh <tranquangthanh3062004@gmail.com>",
   "license": "MIT",
@@ -51,13 +57,21 @@
   "dependencies": {
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "express": "^5.2.1",
+    "multer": "^2.3.0",
     "open": "^10.1.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.2.0",
     "@types/node": "^22.0.0",
+    "concurrently": "^10.0.5",
     "tsx": "^4.19.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vite": "^8.2.2"
   }
 }

@@ -1,0 +1,149 @@
+﻿name: PR Code Review & Security Audit
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  audit-pr:
+    name: CodeTrust PR Inspection & UAT Generator
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build CodeTrust Engine
+        run: pnpm run build
+
+      - name: Run CodeTrust JSON Audit
+        id: run_audit
+        run: |
+          node dist/cli/bin.js . --json > audit-result.json
+          node dist/cli/bin.js . --no-open -o pr-audit-report.html
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+
+      - name: Post Audit Comment on PR
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            let reportData;
+            try {
+              const raw = fs.readFileSync('audit-result.json', 'utf8');
+              reportData = JSON.parse(raw);
+            } catch (err) {
+              console.error('Could not parse audit-result.json', err);
+              return;
+            }
+
+            const verdict = reportData.executiveSummary.verdict;
+            const scores = reportData.scores;
+            const findings = reportData.securityFindings || [];
+            const uat = reportData.uatChecklist || [];
+
+            const verdictBadge = verdict === 'APPROVED'
+              ? '🟢 **APPROVED (ĐẠT CHUẨN NGHIỆM THU)**'
+              : verdict === 'NEEDS_REVIEW'
+              ? '🟡 **NEEDS REVIEW (CẦN RÀ SOÁT LẠI)**'
+              : '🔴 **REJECTED (TỪ CHỐI - CÓ RỦI RO NGHIÊM TRỌNG)**';
+
+            let findingsTable = '✅ *Không phát hiện lỗ hổng bảo mật nghiêm trọng.*';
+            if (findings.length > 0) {
+              findingsTable = '| Mức độ | Tiêu đề | Tệp tin | Giải thích Non-Tech |\n|---|---|---|---|\n';
+              findings.slice(0, 5).forEach(f => {
+                const icon = f.severity === 'CRITICAL' ? '🚨' : f.severity === 'HIGH' ? '⚠️' : 'ℹ️';
+                findingsTable += `| ${icon} ${f.severity} | **${f.title}** | \`${f.file}\` | ${f.plainExplanation} |\n`;
+              });
+              if (findings.length > 5) {
+                findingsTable += `\n*...và ${findings.length - 5} vấn đề khác.*`;
+              }
+            }
+
+            let uatSection = '';
+            if (uat.length > 0) {
+              uatSection = uat.map(step => `- [ ] **Bước ${step.stepNumber}**: ${step.instruction}\n  - *Mắt thấy*: ${step.expectedResult}`).join('\n\n');
+            }
+
+            const commentBody = `## 🛡️ CodeTrust AI — Báo Cáo Thẩm Định Pull Request
+
+### 📊 Kết luận: ${verdictBadge}
+**Điểm chất lượng:** \`${scores.overall}/100\` (Hạng: **${scores.grade}**) | Bảo mật: \`${scores.security}/100\` | Logic: \`${scores.businessLogic}/100\`
+
+---
+
+### 📝 Tóm tắt cho Non-Tech / PM
+> ${reportData.executiveSummary.headline}
+> 
+> ${reportData.executiveSummary.businessImpactText}
+
+---
+
+### 🚨 Rủi ro & Lỗ hổng bảo mật (${findings.length})
+${findingsTable}
+
+---
+
+### ✅ Checklist nghiệm thu thực tế (Interactive UAT)
+${uatSection}
+
+---
+*Báo cáo được tạo tự động bởi [CodeTrust AI (VibeAuditor)](https://github.com/tranquangthanh3062004/ai-code-auditor)*`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(c => c.body.includes('CodeTrust AI — Báo Cáo Thẩm Định Pull Request'));
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody,
+              });
+            }
+
+            if (verdict === 'REJECTED') {
+              core.setFailed('CodeTrust Gate Failed: PR chứa lỗ hổng bảo mật nghiêm trọng (CRITICAL). Vui lòng khắc phục trước khi merge.');
+            }
+
+      - name: Upload PR Report HTML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-audit-report-html
+          path: pr-audit-report.html

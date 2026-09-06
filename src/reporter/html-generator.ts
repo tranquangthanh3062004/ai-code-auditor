@@ -17,7 +17,7 @@ export class HtmlReportGenerator {
         : 'TỪ CHỐI - NGUY HIỂM';
 
     const findingsHtml = report.securityFindings.length === 0
-      ? `<div class="empty-state">🎉 Không phát hiện lỗ hổng bảo mật nghiêm trọng nào trong mã nguồn được quét!</div>`
+      ? `<div class="empty-state">✅ Không phát hiện lỗ hổng bảo mật nghiêm trọng nào trong mã nguồn được quét!</div>`
       : report.securityFindings.map(f => {
           const badgeClass = `badge-${f.severity.toLowerCase()}`;
           return `
@@ -82,10 +82,10 @@ export class HtmlReportGenerator {
       background-color: var(--bg);
       color: var(--text);
       line-height: 1.6;
-      padding: 30px 20px;
+      padding: 40px 20px;
     }
     .container {
-      max-width: 1080px;
+      max-width: 1000px;
       margin: 0 auto;
     }
     .header {
@@ -93,17 +93,18 @@ export class HtmlReportGenerator {
       justify-content: space-between;
       align-items: center;
       margin-bottom: 30px;
-      padding-bottom: 20px;
       border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
       flex-wrap: wrap;
-      gap: 15px;
+      gap: 16px;
     }
     .logo-area h1 {
       font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
       background: linear-gradient(135deg, #a5b4fc, #6366f1);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 4px;
     }
     .logo-area p {
       font-size: 13px;
@@ -112,36 +113,35 @@ export class HtmlReportGenerator {
     .meta-badges {
       display: flex;
       gap: 10px;
-      font-size: 12px;
+      flex-wrap: wrap;
     }
     .tag {
       background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
       padding: 6px 12px;
       border-radius: 20px;
-      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-muted);
     }
     .verdict-banner {
-      background: ${verdictColor}15;
-      border: 2px solid ${verdictColor};
+      background: var(--card-bg);
+      border: 1px solid var(--border);
       border-radius: 16px;
       padding: 24px;
+      margin-bottom: 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 30px;
-      box-shadow: 0 10px 30px ${verdictColor}20;
-      flex-wrap: wrap;
       gap: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
     .verdict-badge {
-      display: inline-block;
-      background: ${verdictColor};
-      color: #fff;
-      font-weight: 800;
-      font-size: 15px;
-      padding: 6px 16px;
-      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
       letter-spacing: 0.5px;
+      color: ${verdictColor};
+      display: inline-block;
       margin-bottom: 8px;
     }
     .verdict-headline {
@@ -158,14 +158,16 @@ export class HtmlReportGenerator {
       font-size: 56px;
       font-weight: 900;
       color: ${verdictColor};
-      text-shadow: 0 0 25px ${verdictColor}60;
-      min-width: 90px;
-      text-align: center;
+      line-height: 1;
+      padding: 10px 24px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 16px;
     }
     .grid-scores {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
+      gap: 16px;
       margin-bottom: 30px;
     }
     .score-card {
@@ -173,23 +175,20 @@ export class HtmlReportGenerator {
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 20px;
-      backdrop-filter: blur(10px);
     }
     .score-title {
       font-size: 13px;
       color: var(--text-muted);
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      margin-bottom: 8px;
     }
     .score-value {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 800;
       margin-bottom: 10px;
     }
     .progress-bar {
       height: 6px;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
       border-radius: 3px;
       overflow: hidden;
     }
@@ -202,10 +201,10 @@ export class HtmlReportGenerator {
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 24px;
-      margin-bottom: 30px;
+      margin-bottom: 24px;
     }
     .section-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
       margin-bottom: 16px;
       display: flex;
@@ -356,6 +355,7 @@ export class HtmlReportGenerator {
         <p>Hệ thống Đánh giá Chất lượng, Bảo mật & Nghiệm thu Dành cho Non-Tech</p>
       </div>
       <div class="meta-badges">
+        <span class="tag">ID: <strong>${this.escapeHtml(report.meta.auditId)}</strong></span>
         <span class="tag">Dự án: <strong>${this.escapeHtml(report.meta.projectName)}</strong></span>
         <span class="tag">Nền tảng: <strong>${this.escapeHtml(report.projectInfo.framework)}</strong></span>
         <span class="tag">${this.escapeHtml(report.meta.timestamp)}</span>
@@ -387,14 +387,14 @@ export class HtmlReportGenerator {
         </div>
       </div>
       <div class="score-card">
-        <div class="score-title">🎯 Logic & Nghiệp Vụ</div>
+        <div class="score-title">💡 Logic & Nghiệp Vụ</div>
         <div class="score-value" style="color: #6366f1">${report.scores.businessLogic}/100</div>
         <div class="progress-bar">
           <div class="progress-fill" style="width: ${report.scores.businessLogic}%; background: #6366f1"></div>
         </div>
       </div>
       <div class="score-card">
-        <div class="score-title">⚡ Ổn Định Giao Diện</div>
+        <div class="score-title">🎯 Ổn Định Giao Diện</div>
         <div class="score-value" style="color: #38bdf8">${report.scores.visualStability}/100</div>
         <div class="progress-bar">
           <div class="progress-fill" style="width: ${report.scores.visualStability}%; background: #38bdf8"></div>
