@@ -1,0 +1,13 @@
+﻿{
+  "name": "secure-payment-gateway",
+  "version": "1.0.0",
+  "description": "Clean, securely validated payment gateway app",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.0",
+    "zod": "^3.23.0"
+  }
+}

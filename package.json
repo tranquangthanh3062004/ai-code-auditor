@@ -1,0 +1,49 @@
+﻿{
+  "name": "ai-code-auditor",
+  "version": "0.1.0",
+  "description": "AI Code Quality, Security & Visual Verification Platform for Non-Tech Stakeholders",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "codetrust": "./dist/cli/bin.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "tsx --test tests/audit.test.ts",
+    "dev": "tsx src/cli/bin.ts",
+    "audit": "tsx src/cli/bin.ts",
+    "prepublishOnly": "pnpm run build"
+  },
+  "keywords": [
+    "ai",
+    "code-audit",
+    "vibe-coding",
+    "non-tech",
+    "security-scanner",
+    "deepseek",
+    "verification"
+  ],
+  "author": "Tran Quang Thanh <tranquangthanh3062004@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tranquangthanh3062004/ai-code-auditor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tranquangthanh3062004/ai-code-auditor/issues"
+  },
+  "homepage": "https://github.com/tranquangthanh3062004/ai-code-auditor#readme",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.5",
+    "open": "^10.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  }
+}
