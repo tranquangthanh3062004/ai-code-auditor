@@ -310,3 +310,70 @@ test('15. DeepSeekAuditor constructor should accept custom apiKey and baseUrl wi
   assert.ok(auditor, 'Auditor instance created with custom params');
 });
 
+test('16. SkillRegistry should load all 24 skills with exact category breakdown', async () => {
+  const { defaultSkillRegistry } = await import('../src/skills/index.js');
+  const allSkills = defaultSkillRegistry.listSkills();
+
+  assert.equal(allSkills.length, 24, 'Total skills must equal exactly 24');
+
+  const coreSkills = defaultSkillRegistry.listSkills({ category: 'CORE' });
+  const optSkills = defaultSkillRegistry.listSkills({ category: 'OPTIONAL' });
+  const premSkills = defaultSkillRegistry.listSkills({ category: 'PREMIUM' });
+  const intSkills = defaultSkillRegistry.listSkills({ category: 'INTERNAL' });
+
+  assert.equal(coreSkills.length, 5, 'Should have exactly 5 CORE skills');
+  assert.equal(optSkills.length, 7, 'Should have exactly 7 OPTIONAL skills');
+  assert.equal(premSkills.length, 8, 'Should have exactly 8 PREMIUM skills');
+  assert.equal(intSkills.length, 4, 'Should have exactly 4 INTERNAL skills');
+});
+
+test('17. SkillRegistry should verify zero circular dependencies across all 24 skills', async () => {
+  const { defaultSkillRegistry } = await import('../src/skills/index.js');
+  const check = defaultSkillRegistry.checkCircularDependencies();
+
+  assert.equal(check.hasCycle, false, 'Dependency graph must not have circular dependencies');
+
+  // Verify topological execution order for a multi-dependency skill
+  const executionOrder = defaultSkillRegistry.resolveDependencies('core.biz-risk-translator');
+  assert.ok(executionOrder.includes('core.repo-recon'));
+  assert.ok(executionOrder.includes('core.static-sec-scan'));
+  assert.equal(executionOrder[executionOrder.length - 1], 'core.biz-risk-translator');
+});
+
+test('18. SkillRegistry should protect CORE skills from deactivation and enforce Entitlement for PREMIUM skills', async () => {
+  const { defaultSkillRegistry } = await import('../src/skills/index.js');
+
+  // 1. Core skills cannot be disabled
+  const disableCoreRes = defaultSkillRegistry.disableSkill('core.repo-recon');
+  assert.equal(disableCoreRes.success, false, 'Should block disabling CORE skill');
+  assert.ok(disableCoreRes.reason?.includes('Quy tắc bảo vệ'));
+
+  // 2. Premium skills cannot be enabled without entitlement
+  const enablePremRes = defaultSkillRegistry.enableSkill('prem.owasp-top10-certifier');
+  assert.equal(enablePremRes.success, false, 'Should reject enabling PREMIUM skill without license');
+
+  // 3. Premium skill succeeds when entitled
+  const licensedRes = defaultSkillRegistry.enableSkill('prem.owasp-top10-certifier', {
+    tenantId: 'tenant-test',
+    plan: 'PRO',
+    licensedSkillIds: ['prem.owasp-top10-certifier'],
+    tokenQuota: 100000,
+    tokensUsed: 0,
+  });
+  assert.equal(licensedRes.success, true, 'Should allow enabling when licensed in entitlement');
+});
+
+test('19. MCP Tools codetrust_list_skills and codetrust_get_skill_info should execute cleanly', async () => {
+  const { executeMcpTool } = await import('../src/mcp/tools.js');
+
+  // 1. List skills
+  const listRes = await executeMcpTool('codetrust_list_skills', { category: 'CORE' });
+  assert.equal(listRes.total, 5);
+  assert.ok(listRes.skills.some((s: any) => s.id === 'core.repo-recon'));
+
+  // 2. Get skill info
+  const infoRes = await executeMcpTool('codetrust_get_skill_info', { skillId: 'prem.owasp-top10-certifier' });
+  assert.equal(infoRes.skill.name, 'OWASP Top 10 Enterprise Compliance Certifier');
+  assert.ok(infoRes.resolvedExecutionOrder.length >= 2);
+});
+

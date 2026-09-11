@@ -10,6 +10,7 @@ export { DeterministicScanner } from './engine/deterministic-rules.js';
 export { DeepSeekAuditor } from './engine/deepseek-client.js';
 export { ScorecardCalculator } from './reporter/scorecard.js';
 export { HtmlReportGenerator } from './reporter/html-generator.js';
+export * from './skills/index.js';
 
 export interface AuditOptions extends OrchestratorOptions {
   outputPath?: string;

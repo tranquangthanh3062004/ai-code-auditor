@@ -104,6 +104,32 @@
   }
   ```
 
+### 2.5. `codetrust_list_skills`
+- **Mô tả**: Khám phá danh mục 24 Agent Skills có sẵn trong hệ thống CodeTrust AI (phân loại theo CORE, OPTIONAL, PREMIUM, INTERNAL).
+- **Tham số (Input Schema)**:
+  ```json
+  {
+    "type": "object",
+    "properties": {
+      "category": { "type": "string", "enum": ["CORE", "OPTIONAL", "PREMIUM", "INTERNAL"] },
+      "enabledOnly": { "type": "boolean", "description": "Chỉ hiển thị các skill đang kích hoạt" }
+    }
+  }
+  ```
+
+### 2.6. `codetrust_get_skill_info`
+- **Mô tả**: Xem đặc tả chi tiết (Specification), tác tử phụ trách, rủi ro, phân quyền và thứ tự giải quyết phụ thuộc (Topological Execution Order) của một Skill.
+- **Tham số (Input Schema)**:
+  ```json
+  {
+    "type": "object",
+    "properties": {
+      "skillId": { "type": "string", "description": "Mã định danh skill (ví dụ: prem.owasp-top10-certifier)" }
+    },
+    "required": ["skillId"]
+  }
+  ```
+
 ---
 
 ## 3. HƯỚNG DẪN TÍCH HỢP VÀO CÁC ỨNG DỤNG AI (CLIENT CONFIGURATION)
