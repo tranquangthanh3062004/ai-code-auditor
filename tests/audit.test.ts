@@ -306,7 +306,7 @@ test('14. Security: Path Traversal attempts should be blocked by isSafeRelativeP
 });
 
 test('15. DeepSeekAuditor constructor should accept custom apiKey and baseUrl without throwing', () => {
-  const auditor = new DeepSeekAuditor('sk-test-custom-key-12345678901234567890', 'https://custom-ai.example.com');
+  const auditor = new DeepSeekAuditor('test-custom-key-12345', 'https://custom-ai.example.com');
   assert.ok(auditor, 'Auditor instance created with custom params');
 });
 

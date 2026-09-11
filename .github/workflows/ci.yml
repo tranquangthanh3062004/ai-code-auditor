@@ -1,4 +1,4 @@
-﻿name: CI Suite & CodeTrust Quality Gate
+name: CI Suite & CodeTrust Quality Gate
 
 on:
   push:
@@ -80,3 +80,4 @@ jobs:
         with:
           name: codetrust-self-audit-report
           path: self-audit.html
+          if-no-files-found: warn

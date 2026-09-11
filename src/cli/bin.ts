@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
 import { Command } from 'commander';
@@ -16,12 +16,13 @@ const program = new Command();
 program
   .name('codetrust')
   .description('Hệ thống thẩm định chất lượng, bảo mật và trực quan hóa code AI cho Non-Tech Founders và PMs')
-  .version('0.1.0')
+  .version('0.2.0')
   .argument('[path]', 'Đường dẫn thư mục dự án cần thẩm định', '.')
   .option('-o, --output <file>', 'Đường dẫn file HTML báo cáo xuất ra', 'audit-report.html')
+  .option('--json-output <file>', 'Đường dẫn file JSON xuất ra kết quả thẩm định')
   .option('--no-open', 'Không tự động mở trình duyệt sau khi xuất báo cáo')
   .option('--json', 'Xuất kết quả dạng JSON thô')
-  .action(async (targetPath: string, options: { output: string; open: boolean; json?: boolean }) => {
+  .action(async (targetPath: string, options: { output: string; jsonOutput?: string; open: boolean; json?: boolean }) => {
     const resolvedPath = path.resolve(targetPath);
 
     if (!options.json) {
@@ -71,7 +72,7 @@ program
 
     // 5. Tính toán bảng điểm (Scorecard)
     const calculator = new ScorecardCalculator();
-    const scores = calculator.calculate(findings);
+    const scores = calculator.calculate(findings, projectInfo);
 
     // 6. Tổng hợp Báo cáo Thẩm định hoàn chỉnh
     const report: AuditReport = {
@@ -88,16 +89,22 @@ program
       uatChecklist,
     };
 
+    // 7. Xuất file HTML độc lập
+    const outputPath = path.resolve(options.output || 'audit-report.html');
+    const htmlGenerator = new HtmlReportGenerator();
+    const htmlContent = htmlGenerator.generate(report);
+    fs.writeFileSync(outputPath, htmlContent, 'utf8');
+
+    // 8. Xuất file JSON nếu có tùy chọn --json-output
+    if (options.jsonOutput) {
+      const jsonOutputPath = path.resolve(options.jsonOutput);
+      fs.writeFileSync(jsonOutputPath, JSON.stringify(report, null, 2), 'utf8');
+    }
+
     if (options.json) {
       console.log(JSON.stringify(report, null, 2));
       return;
     }
-
-    // 7. Xuất file HTML độc lập
-    const htmlGenerator = new HtmlReportGenerator();
-    const htmlContent = htmlGenerator.generate(report);
-    const outputPath = path.resolve(options.output);
-    fs.writeFileSync(outputPath, htmlContent, 'utf8');
 
     // In kết quả tóm tắt ra console
     const verdictColor = report.executiveSummary.verdict === 'APPROVED' ? chalk.bold.green : report.executiveSummary.verdict === 'NEEDS_REVIEW' ? chalk.bold.yellow : chalk.bold.red;

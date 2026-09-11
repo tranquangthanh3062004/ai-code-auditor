@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import type { ProjectInfo } from '../types/audit.js';
 
@@ -128,7 +128,7 @@ export class HeuristicDetector {
   private scanDirectory(dir: string, currentStats: ScanStats = { totalFiles: 0, totalLinesOfCode: 0, filePaths: [] }): ScanStats {
     const ignoredDirs = new Set([
       'node_modules', '.git', 'dist', 'build', '.next', '.nuxt', '.turbo',
-      'coverage', 'vendor', '__pycache__', '.venv', 'env'
+      'coverage', 'vendor', '__pycache__', '.venv', 'env', 'samples', 'fixtures', '__mocks__'
     ]);
 
     const ignoredExts = new Set([

@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import type { SecurityFinding, Severity } from '../types/audit.js';
 
@@ -109,9 +109,24 @@ export class DeterministicScanner {
     let counter = 1;
 
     for (const filePath of filePaths) {
-      // Bỏ qua các tệp ví dụ mẫu .example hoặc lockfile
+      // Bỏ qua các tệp ví dụ mẫu .example, lockfile, .env local config, report HTML, rule definitions và test files
       const base = path.basename(filePath);
-      if (base.endsWith('.example') || base.endsWith('-lock.yaml') || base === 'package-lock.json') {
+      if (
+        base.endsWith('.example') ||
+        base.endsWith('-lock.yaml') ||
+        base === 'package-lock.json' ||
+        base === '.env' ||
+        base.startsWith('.env.') ||
+        base.startsWith('deterministic-rules.') ||
+        base.endsWith('.test.ts') ||
+        base.endsWith('.test.js') ||
+        base.endsWith('.spec.ts') ||
+        base.endsWith('.spec.js') ||
+        base.endsWith('-report.html') ||
+        base.endsWith('.report.html') ||
+        base === 'audit-report.html' ||
+        base === 'self-audit.html'
+      ) {
         continue;
       }
 
