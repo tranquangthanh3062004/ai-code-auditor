@@ -1,7 +1,7 @@
-﻿import type { SecurityFinding, Scores, Grade } from '../types/audit.js';
+import type { SecurityFinding, Scores, Grade, ProjectInfo } from '../types/audit.js';
 
 export class ScorecardCalculator {
-  public calculate(findings: SecurityFinding[]): Scores {
+  public calculate(findings: SecurityFinding[], projectInfo?: ProjectInfo): Scores {
     let securityDeduction = 0;
     let logicDeduction = 0;
 
@@ -22,9 +22,23 @@ export class ScorecardCalculator {
 
     const security = Math.max(0, Math.min(100, 100 - securityDeduction));
     const businessLogic = Math.max(10, Math.min(100, 95 - logicDeduction));
-    const visualStability = Math.max(20, Math.min(100, security < 40 ? 50 : 90));
 
-    // Tính điểm tổng trọng số: Security 40%, Logic 35%, Visual 25%
+    // Calculate stability index based on concrete structural indicators when projectInfo is available
+    let visualStability = 90;
+    if (projectInfo) {
+      let readinessScore = 40; // Base baseline
+      if (projectInfo.framework && !projectInfo.framework.includes('Tự do')) readinessScore += 20;
+      if (projectInfo.entrypoint) readinessScore += 15;
+      if (projectInfo.devCommand) readinessScore += 15;
+      if (projectInfo.totalFiles > 0) readinessScore += 10;
+      // Deduct if severe security findings compromise runtime
+      readinessScore -= Math.round(securityDeduction * 0.3);
+      visualStability = Math.max(20, Math.min(100, readinessScore));
+    } else {
+      visualStability = Math.max(20, Math.min(100, Math.round(90 - (securityDeduction * 0.35))));
+    }
+
+    // Tính điểm tổng trọng số: Security 40%, Logic 35%, Stability 25%
     const overall = Math.round(security * 0.4 + businessLogic * 0.35 + visualStability * 0.25);
 
     let grade: Grade = 'F';

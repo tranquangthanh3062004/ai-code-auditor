@@ -1,4 +1,4 @@
-﻿import test from 'node:test';
+import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -223,3 +223,90 @@ test('10. auditProject high-level API should REJECT vulnerable sample with Criti
   assert.ok(report.securityFindings.some(f => f.severity === 'CRITICAL'));
   assert.ok(report.scores.overall < 70);
 });
+
+test('11. AuditOrchestrator should coordinate 4 sub-agents and produce task telemetry', async () => {
+  const { AuditOrchestrator } = await import('../src/agents/orchestrator.js');
+  const orchestrator = new AuditOrchestrator();
+  const result = await orchestrator.orchestrate(SECURE_DIR, { generateHtml: false });
+
+  assert.ok(result.report, 'Should produce audit report');
+  assert.equal(result.report.executiveSummary.verdict, 'APPROVED');
+  assert.equal(result.tasks.length, 4, 'Should execute exactly 4 sub-agent tasks');
+  assert.ok(result.tasks.every(t => t.status === 'COMPLETED'), 'All sub-agent tasks should complete successfully');
+  assert.ok(result.totalDurationMs > 0, 'Should measure execution time');
+});
+
+test('12. MCP executeMcpTool should execute codetrust_inspect_project and codetrust_scan_security', async () => {
+  const { executeMcpTool } = await import('../src/mcp/tools.js');
+
+  const inspectRes = await executeMcpTool('codetrust_inspect_project', { targetPath: SECURE_DIR });
+  assert.equal(inspectRes.projectInfo.name, 'secure-payment-gateway');
+  assert.equal(inspectRes.projectInfo.framework, 'Express.js API');
+
+  const scanRes = await executeMcpTool('codetrust_scan_security', { targetPath: VULNERABLE_DIR });
+  assert.ok(scanRes.totalFindings >= 2, 'Should find vulnerabilities in vulnerable sample');
+  assert.ok(scanRes.findings.some((f: any) => f.severity === 'CRITICAL'), 'Should identify critical API leak');
+});
+
+test('13. McpServer should handle JSON-RPC initialize, ping, tools/list, and tools/call', async () => {
+  const { McpServer } = await import('../src/mcp/server.js');
+  const server = new McpServer();
+
+  // 1. Initialize
+  const initRes = await server.handleRequest({ jsonrpc: '2.0', id: 1, method: 'initialize' });
+  assert.equal(initRes?.result?.serverInfo?.name, 'codetrust-mcp-server');
+  assert.ok(initRes?.result?.capabilities?.tools);
+
+  // 2. Ping
+  const pingRes = await server.handleRequest({ jsonrpc: '2.0', id: 2, method: 'ping' });
+  assert.deepEqual(pingRes?.result, {});
+
+  // 3. List tools
+  const listRes = await server.handleRequest({ jsonrpc: '2.0', id: 3, method: 'tools/list' });
+  assert.ok(Array.isArray(listRes?.result?.tools));
+  assert.ok(listRes?.result?.tools.length >= 4);
+
+  // 4. Call tool
+  const callRes = await server.handleRequest({
+    jsonrpc: '2.0',
+    id: 4,
+    method: 'tools/call',
+    params: {
+      name: 'codetrust_inspect_project',
+      arguments: { targetPath: SECURE_DIR },
+    },
+  });
+  assert.ok(callRes?.result?.content?.[0]?.text);
+  assert.ok(callRes?.result?.content[0].text.includes('secure-payment-gateway'));
+});
+
+test('14. Security: Path Traversal attempts should be blocked by isSafeRelativePath', async () => {
+  const { isSafeRelativePath } = await import('../server/index.js');
+  const invalidPaths = [
+    '../../etc/passwd',
+    '..\\..\\windows\\system32\\evil.exe',
+    '/absolute/path/attack.js',
+    'C:\\Windows\\System32\\calc.exe',
+  ];
+
+  for (const p of invalidPaths) {
+    assert.equal(isSafeRelativePath(p), false, `Path traversal attempt "${p}" should be rejected`);
+  }
+
+  const validPaths = [
+    'src/index.js',
+    'components/Button.tsx',
+    'package.json',
+    'assets/images/logo.png',
+  ];
+
+  for (const p of validPaths) {
+    assert.equal(isSafeRelativePath(p), true, `Safe relative path "${p}" should be accepted`);
+  }
+});
+
+test('15. DeepSeekAuditor constructor should accept custom apiKey and baseUrl without throwing', () => {
+  const auditor = new DeepSeekAuditor('sk-test-custom-key-12345678901234567890', 'https://custom-ai.example.com');
+  assert.ok(auditor, 'Auditor instance created with custom params');
+});
+

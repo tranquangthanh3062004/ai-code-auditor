@@ -1,15 +1,28 @@
-﻿import dotenv from 'dotenv';
-import type { ExecutiveSummary, UATStep, ProjectInfo, SecurityFinding } from '../types/audit.js';
+import dotenv from 'dotenv';
+import { z } from 'zod';
+import {
+  ExecutiveSummarySchema,
+  UATStepSchema,
+  type ExecutiveSummary,
+  type UATStep,
+  type ProjectInfo,
+  type SecurityFinding,
+} from '../types/audit.js';
 
 dotenv.config();
+
+const AiResponseSchema = z.object({
+  executiveSummary: ExecutiveSummarySchema,
+  uatChecklist: z.array(UATStepSchema),
+});
 
 export class DeepSeekAuditor {
   private apiKey: string | undefined;
   private baseUrl: string;
 
-  constructor() {
-    this.apiKey = process.env.DEEPSEEK_API_KEY;
-    this.baseUrl = process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com';
+  constructor(apiKey?: string, baseUrl?: string) {
+    this.apiKey = apiKey ?? process.env.DEEPSEEK_API_KEY;
+    this.baseUrl = baseUrl ?? process.env.DEEPSEEK_BASE_URL ?? 'https://api.deepseek.com';
   }
 
   public async auditWithAI(
@@ -75,35 +88,45 @@ Yêu cầu đầu ra định dạng JSON duy nhất (không bọc trong markdown
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
 
-    const response = await fetch(`${this.baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: 'Bạn là chuyên gia thẩm định code cho người quản lý phi kỹ thuật. Luôn trả lời định dạng JSON hợp lệ.' },
-          { role: 'user', content: prompt },
-        ],
-        temperature: 0.2,
-      }),
-      signal: controller.signal,
-    });
+    try {
+      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          response_format: { type: 'json_object' },
+          messages: [
+            { role: 'system', content: 'Bạn là chuyên gia thẩm định code cho người quản lý phi kỹ thuật. Luôn trả lời định dạng JSON hợp lệ.' },
+            { role: 'user', content: prompt },
+          ],
+          temperature: 0.2,
+        }),
+        signal: controller.signal,
+      });
 
-    clearTimeout(timeout);
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`DeepSeek API Error ${response.status}: ${errText}`);
+      }
 
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`DeepSeek API Error ${response.status}: ${errText}`);
+      const data = await response.json();
+      const rawContent = data.choices?.[0]?.message?.content || '';
+      const cleanJson = rawContent.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+
+      const parsed = JSON.parse(cleanJson);
+      const validated = AiResponseSchema.safeParse(parsed);
+      if (!validated.success) {
+        console.warn('[DeepSeek API Warning]: Phản hồi từ AI không khớp schema chuẩn:', validated.error.format());
+        return null;
+      }
+
+      return validated.data;
+    } finally {
+      clearTimeout(timeout);
     }
-
-    const data = await response.json();
-    const rawContent = data.choices?.[0]?.message?.content || '';
-    const cleanJson = rawContent.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
-
-    return JSON.parse(cleanJson);
   }
 
   private generateHeuristicReport(

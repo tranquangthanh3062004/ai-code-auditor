@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "ai-code-auditor",
   "version": "0.2.0",
   "description": "AI Code Quality, Security & Visual Verification Platform for Non-Tech Stakeholders",
@@ -31,6 +31,7 @@
     "server": "tsx server/index.ts",
     "ui": "tsx server/index.ts",
     "audit": "tsx src/cli/bin.ts",
+    "mcp": "tsx src/mcp/bin.ts",
     "prepublishOnly": "pnpm run build"
   },
   "keywords": [

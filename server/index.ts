@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import cors from 'cors';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -13,8 +13,34 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 4000;
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
-// In-memory cache for generated reports
-const reportCache = new Map<string, { report: AuditReport; html?: string }>();
+// Bounded in-memory TTL/LRU cache for generated reports
+interface CachedReport {
+  report: AuditReport;
+  html?: string;
+  createdAt: number;
+}
+const MAX_CACHE_SIZE = 50;
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+const reportCache = new Map<string, CachedReport>();
+
+function setCachedReport(id: string, data: { report: AuditReport; html?: string }): void {
+  // Evict oldest if exceeding size
+  if (reportCache.size >= MAX_CACHE_SIZE) {
+    const oldestKey = reportCache.keys().next().value;
+    if (oldestKey) reportCache.delete(oldestKey);
+  }
+  reportCache.set(id, { ...data, createdAt: Date.now() });
+}
+
+function getCachedReport(id: string): { report: AuditReport; html?: string } | null {
+  const item = reportCache.get(id);
+  if (!item) return null;
+  if (Date.now() - item.createdAt > CACHE_TTL_MS) {
+    reportCache.delete(id);
+    return null;
+  }
+  return { report: item.report, html: item.html };
+}
 
 // Configure multer for uploaded files
 const upload = multer({
@@ -46,7 +72,7 @@ app.post('/api/audit/path', async (req, res) => {
     }
 
     const { report, htmlContent } = await auditProject(resolved, { generateHtml: true });
-    reportCache.set(report.meta.auditId, { report, html: htmlContent });
+    setCachedReport(report.meta.auditId, { report, html: htmlContent });
 
     return res.json({
       success: true,
@@ -75,7 +101,7 @@ app.post('/api/audit/sample', async (req, res) => {
     }
 
     const { report, htmlContent } = await auditProject(samplePath, { generateHtml: true });
-    reportCache.set(report.meta.auditId, { report, html: htmlContent });
+    setCachedReport(report.meta.auditId, { report, html: htmlContent });
 
     return res.json({
       success: true,
@@ -89,7 +115,23 @@ app.post('/api/audit/sample', async (req, res) => {
   }
 });
 
-// 4. Audit uploaded folder/files
+export function isSafeRelativePath(userPath: string): boolean {
+  if (!userPath || typeof userPath !== 'string') return false;
+  if (userPath.includes('\0')) return false;
+  if (path.isAbsolute(userPath) || /^[a-zA-Z]:/.test(userPath)) return false;
+  const normalized = path.normalize(userPath);
+  if (
+    normalized === '..' ||
+    normalized.startsWith('..' + path.sep) ||
+    normalized.startsWith('../') ||
+    normalized.startsWith('..\\')
+  ) {
+    return false;
+  }
+  return true;
+}
+
+// 4. Audit uploaded folder/files with Path Traversal Protection
 app.post('/api/audit/files', async (req, res) => {
   try {
     const { projectName, files } = req.body; // files: Array<{ path: string, content: string }>
@@ -100,10 +142,24 @@ app.post('/api/audit/files', async (req, res) => {
 
     // Create temporary workspace directory
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'codetrust-workspace-'));
+    const resolvedTempDir = path.resolve(tempDir);
     
     try {
       for (const file of files) {
-        const fullPath = path.join(tempDir, file.path);
+        if (!file.path || typeof file.path !== 'string') {
+          return res.status(400).json({ error: 'Invalid file path format' });
+        }
+
+        if (!isSafeRelativePath(file.path)) {
+          return res.status(400).json({ error: `Security violation: Path traversal detected in "${file.path}"` });
+        }
+
+        const fullPath = path.resolve(resolvedTempDir, path.normalize(file.path));
+        // Ensure resolved destination is strictly inside tempDir
+        if (!fullPath.startsWith(resolvedTempDir + path.sep) && fullPath !== resolvedTempDir) {
+          return res.status(400).json({ error: `Security violation: Path traversal out of workspace in "${file.path}"` });
+        }
+
         fs.mkdirSync(path.dirname(fullPath), { recursive: true });
         fs.writeFileSync(fullPath, file.content || '', 'utf8');
       }
@@ -114,7 +170,7 @@ app.post('/api/audit/files', async (req, res) => {
         report.projectInfo.name = projectName;
       }
 
-      reportCache.set(report.meta.auditId, { report, html: htmlContent });
+      setCachedReport(report.meta.auditId, { report, html: htmlContent });
 
       return res.json({
         success: true,
@@ -135,7 +191,7 @@ app.post('/api/audit/files', async (req, res) => {
 
 // 5. Retrieve cached report
 app.get('/api/reports/:id', (req, res) => {
-  const cached = reportCache.get(req.params.id);
+  const cached = getCachedReport(req.params.id);
   if (!cached) {
     return res.status(404).json({ error: 'Report not found or expired' });
   }
@@ -154,16 +210,26 @@ if (fs.existsSync(webDir)) {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`\n=============================================================`);
-  console.log(`       CODETRUST AI — WEB UI & AUDITOR API SERVER            `);
-  console.log(`=============================================================`);
-  console.log(`[✓] Web UI & API Server listening on: http://localhost:${PORT}`);
-  console.log(`[✓] Endpoints:`);
-  console.log(`    - POST http://localhost:${PORT}/api/audit/path`);
-  console.log(`    - POST http://localhost:${PORT}/api/audit/sample`);
-  console.log(`    - POST http://localhost:${PORT}/api/audit/files`);
-  console.log(`    - GET  http://localhost:${PORT}/api/health\n`);
-});
+const isDirectRun = Boolean(
+  process.argv[1] &&
+  (process.argv[1].endsWith('server/index.ts') ||
+   process.argv[1].endsWith('server/index.js') ||
+   process.argv[1].endsWith('server\\index.ts') ||
+   process.argv[1].endsWith('server\\index.js'))
+);
+
+if (isDirectRun && process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`\n=============================================================`);
+    console.log(`       CODETRUST AI — WEB UI & AUDITOR API SERVER            `);
+    console.log(`=============================================================`);
+    console.log(`[✓] Web UI & API Server listening on: http://localhost:${PORT}`);
+    console.log(`[✓] Endpoints:`);
+    console.log(`    - POST http://localhost:${PORT}/api/audit/path`);
+    console.log(`    - POST http://localhost:${PORT}/api/audit/sample`);
+    console.log(`    - POST http://localhost:${PORT}/api/audit/files`);
+    console.log(`    - GET  http://localhost:${PORT}/api/health\n`);
+  });
+}
 
 export { app };
