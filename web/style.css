@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --bg-primary: #070913;
   --bg-secondary: #0e1322;
   --card-bg: rgba(18, 24, 43, 0.75);
@@ -993,4 +993,550 @@ body {
   .input-group { flex-direction: column; }
   .verdict-banner-card { flex-direction: column; text-align: center; }
   .scores-grid { grid-template-columns: 1fr; }
+}
+
+/* ======================================================== */
+/* 1. BUTTONS & UTILITIES                                   */
+/* ======================================================== */
+.btn-outline-primary {
+  background: transparent;
+  border: 1px solid var(--accent-primary);
+  color: var(--accent-primary);
+}
+.btn-outline-primary:hover {
+  background: rgba(99, 102, 241, 0.15);
+  color: #fff;
+}
+.export-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ======================================================== */
+/* 2. TOAST NOTIFICATIONS                                   */
+/* ======================================================== */
+.toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  min-width: 320px;
+  max-width: 440px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 14px 18px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  font-size: 14px;
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(50px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.toast.success { border-left: 4px solid var(--success); }
+.toast.error { border-left: 4px solid var(--danger); }
+.toast.warning { border-left: 4px solid var(--warning); }
+.toast.info { border-left: 4px solid var(--accent-primary); }
+.toast-icon { font-size: 18px; }
+.toast-msg { flex: 1; line-height: 1.4; }
+
+/* ======================================================== */
+/* 3. MODALS & OVERLAYS                                     */
+/* ======================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 6, 15, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.2s ease;
+}
+.modal-dialog {
+  background: #0d1226;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+.modal-sm { max-width: 480px; }
+.modal-md { max-width: 640px; }
+.modal-lg { max-width: 900px; }
+.modal-xl { max-width: 1100px; }
+
+.modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--card-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+}
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+}
+.btn-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 24px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+.btn-close:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--card-border);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.modal-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+/* Form inputs in Modal */
+.form-group {
+  margin-bottom: 16px;
+}
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+/* ======================================================== */
+/* 4. HISTORY DRAWER                                        */
+/* ======================================================== */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 8000;
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+.drawer-overlay.active { display: block; }
+.history-drawer {
+  position: fixed;
+  top: 0;
+  right: -420px;
+  width: 400px;
+  max-width: 90vw;
+  height: 100vh;
+  background: #0b0f20;
+  border-left: 1px solid var(--card-border);
+  z-index: 8500;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.7);
+}
+.history-drawer.active { right: 0; }
+.drawer-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--card-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.drawer-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.drawer-actions { display: flex; align-items: center; gap: 10px; }
+.drawer-body {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.history-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.history-card:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+}
+.history-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.history-proj-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+}
+.history-grade {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.history-meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-sub);
+}
+.history-actions-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* ======================================================== */
+/* 5. SKILL STORE MARKETPLACE                               */
+/* ======================================================== */
+.store-subtitle {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-left: 10px;
+}
+.modal-toolbar {
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.01);
+}
+.store-search-box .form-input {
+  width: 100%;
+}
+.store-category-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.store-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
+  color: var(--text-muted);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.store-pill.active {
+  background: var(--accent-primary);
+  color: #fff;
+  border-color: var(--accent-primary);
+}
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  padding: 20px;
+}
+.store-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+.store-card:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.05);
+}
+.store-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+.store-card-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.store-icon {
+  font-size: 22px;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.store-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+}
+.store-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.45;
+  flex: 1;
+}
+.store-footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.store-card-price {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-secondary);
+}
+.badge-core { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+.badge-opt { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+.badge-prem { background: rgba(217, 70, 239, 0.15); color: #f472b6; border: 1px solid rgba(217, 70, 239, 0.3); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+.badge-int { background: rgba(156, 163, 175, 0.15); color: #d1d5db; border: 1px solid rgba(156, 163, 175, 0.3); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+
+/* Custom Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: .3s;
+  border-radius: 24px;
+  border: 1px solid var(--card-border);
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+input:checked + .slider {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+input:disabled + .slider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ======================================================== */
+/* 6. AUDIT DIFF / PROGRESSION INSPECTOR                    */
+/* ======================================================== */
+.diff-summary-banner {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.diff-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.diff-stat-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+}
+.diff-stat-val {
+  font-size: 20px;
+  font-weight: 800;
+  margin-top: 4px;
+}
+.delta-pos { color: var(--success); }
+.delta-neg { color: var(--danger); }
+.delta-neu { color: var(--text-muted); }
+
+.diff-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.diff-group-box {
+  border-radius: 10px;
+  padding: 14px 18px;
+  border: 1px solid var(--card-border);
+}
+.diff-group-box.resolved { background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.3); }
+.diff-group-box.unresolved { background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.3); }
+.diff-group-box.new { background: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.3); }
+
+.diff-group-title {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ======================================================== */
+/* 7. DIGITAL ACCEPTANCE SEAL                               */
+/* ======================================================== */
+.acceptance-action-card {
+  margin-top: 24px;
+  padding: 20px 24px;
+  border: 1px dashed rgba(16, 185, 129, 0.4);
+  border-radius: 14px;
+  background: rgba(16, 185, 129, 0.03);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.acceptance-badge {
+  font-size: 11px;
+  font-weight: 800;
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+.acceptance-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.digital-certificate-card {
+  margin-top: 24px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(13, 148, 136, 0.05) 100%);
+  border: 2px solid var(--success);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: fadeIn 0.4s ease;
+}
+.cert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cert-seal-stamp {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--success);
+  font-weight: 800;
+  font-size: 16px;
+}
+.cert-hash {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-sub);
+  word-break: break-all;
+}
+
+/* ======================================================== */
+/* 8. CODE DIFF BOX IN FINDINGS                             */
+/* ======================================================== */
+.finding-actions-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+.code-diff-box {
+  margin-top: 10px;
+  background: #060914;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.diff-line-del {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.1);
+  display: block;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.diff-line-add {
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.1);
+  display: block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
 }

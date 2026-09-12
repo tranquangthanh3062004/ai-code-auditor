@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CodeTrust AI • Nền Tảng Thẩm Định Code Cho Non-Tech</title>
+  <title>CodeTrust AI • Nền Tảng Thẩm Định Code Cho Non-Tech & Skill Marketplace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -15,6 +15,9 @@
   <div class="ambient-glow glow-2"></div>
   <div class="ambient-glow glow-3"></div>
 
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
   <div class="app-layout">
     <!-- Navigation Header -->
     <header class="app-header">
@@ -25,7 +28,7 @@
           </div>
           <div class="brand-text">
             <div class="brand-title">CodeTrust <span class="brand-badge">AI</span></div>
-            <div class="brand-subtitle">VibeAuditor • Non-Tech Verification Platform</div>
+            <div class="brand-subtitle">VibeAuditor • Non-Tech Verification Platform & Skill Store</div>
           </div>
         </div>
 
@@ -34,11 +37,17 @@
             <span class="status-dot"></span>
             <span id="server-status-text">Hệ thống sẵn sàng</span>
           </div>
+          <button class="btn btn-secondary btn-sm" id="btn-open-history" onclick="toggleHistoryDrawer()">
+            📜 Lịch Sử (<span id="history-count-badge">0</span>)
+          </button>
+          <button class="btn btn-primary btn-sm" id="btn-open-store" onclick="openSkillStoreModal()">
+            🛍️ Skill Store (24)
+          </button>
           <a href="https://github.com/tranquangthanh3062004/ai-code-auditor" target="_blank" class="btn-github">
             <svg height="18" width="18" viewBox="0 0 16 16" fill="currentColor">
               <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
             </svg>
-            GitHub Repo
+            GitHub
           </a>
         </div>
       </div>
@@ -55,7 +64,7 @@
             <span class="gradient-text">Chính Xác • Minh Bạch • An Toàn</span>
           </h1>
           <p class="hero-desc">
-            Không cần đọc code phức tạp. CodeTrust AI quét toàn bộ dự án, phát hiện lỗ hổng bảo mật chết người, dịch rủi ro sang ngôn ngữ kinh doanh và tạo kịch bản 3 bước để bạn tự kiểm chứng.
+            Không cần đọc code phức tạp. CodeTrust AI quét toàn bộ dự án, phát hiện lỗ hổng bảo mật chết người, dịch rủi ro sang ngôn ngữ kinh doanh và tạo kịch bản 3 bước để bạn tự kiểm chứng trước khi chuyển tiền.
           </p>
         </div>
 
@@ -132,19 +141,19 @@
         <div class="audit-steps-checklist">
           <div class="step-line active" id="step-tree">
             <span class="step-bullet">1</span>
-            <span>Khám phá cây tệp & nhận diện Framework</span>
+            <span>Khám phá cây tệp & nhận diện Framework (core.repo-recon)</span>
           </div>
           <div class="step-line" id="step-rules">
             <span class="step-bullet">2</span>
-            <span>Quét 11 quy tắc bảo mật tĩnh (Zero-Hallucination)</span>
+            <span>Quét 11 quy tắc bảo mật tĩnh (core.static-sec-scan)</span>
           </div>
           <div class="step-line" id="step-ai">
             <span class="step-bullet">3</span>
-            <span>Trí tuệ nhân tạo phân tích logic & sinh kịch bản UAT</span>
+            <span>Dịch rủi ro & sinh kịch bản UAT (core.biz-risk-translator)</span>
           </div>
           <div class="step-line" id="step-score">
             <span class="step-bullet">4</span>
-            <span>Tính điểm trọng số & xuất báo cáo thẩm định</span>
+            <span>Tính điểm trọng số Trust Scorecard (core.trust-scorecard)</span>
           </div>
         </div>
       </section>
@@ -154,12 +163,28 @@
         <!-- Action Toolbar -->
         <div class="results-toolbar card">
           <div class="toolbar-left">
-            <button class="btn btn-secondary btn-sm" onclick="resetToInput()">← Thẩm Định Dự Án Khác</button>
+            <button class="btn btn-secondary btn-sm" onclick="resetToInput()">← Thẩm Định Khác</button>
             <span class="audit-id-tag" id="report-audit-id">AUDIT-0000</span>
+            <button class="btn btn-outline-primary btn-sm" id="btn-compare-audit" onclick="openCompareModal()">
+              ⚖️ So Sánh Bản Khác
+            </button>
           </div>
           <div class="toolbar-right">
-            <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ In / Xuất PDF</button>
-            <button class="btn btn-primary btn-sm" id="btn-download-html" onclick="downloadHtmlReport()">📥 Tải File Báo Cáo HTML</button>
+            <button class="btn btn-secondary btn-sm" onclick="copyMarkdownSummary()">
+              📑 Copy Tóm Tắt (Markdown)
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ In / PDF</button>
+            <div class="export-dropdown">
+              <button class="btn btn-primary btn-sm" id="btn-download-html" onclick="downloadHtmlReport()">
+                📥 Tải Báo Cáo HTML
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="downloadJsonReport()" title="Tải dữ liệu JSON thô">
+                📄 JSON
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="downloadMarkdownReport()" title="Tải file Markdown tóm tắt">
+                📝 MD
+              </button>
+            </div>
           </div>
         </div>
 
@@ -187,7 +212,7 @@
             <div class="score-progress-bar">
               <div class="score-progress-fill fill-overall" id="bar-overall" style="width: 95%;"></div>
             </div>
-            <div class="score-desc">Trọng số kết hợp Bảo mật (40%), Logic (35%), UI (25%)</div>
+            <div class="score-desc">Trọng số: Bảo mật (40%), Logic (35%), Ổn định (25%)</div>
           </div>
 
           <div class="score-box card">
@@ -217,13 +242,13 @@
           <div class="score-box card">
             <div class="score-header">
               <span class="score-icon">🎯</span>
-              <span class="score-name">Ổn Định Giao Diện</span>
+              <span class="score-name">Ổn Định Cấu Trúc</span>
             </div>
             <div class="score-value" id="score-visual">95/100</div>
             <div class="score-progress-bar">
               <div class="score-progress-fill fill-visual" id="bar-visual" style="width: 95%;"></div>
             </div>
-            <div class="score-desc">Tính sẵn sàng và mượt mà cho trải nghiệm người dùng</div>
+            <div class="score-desc">Cấu hình framework, entrypoint và dev command</div>
           </div>
         </div>
 
@@ -287,7 +312,7 @@
           </div>
         </div>
 
-        <!-- Interactive UAT 3-Step Section -->
+        <!-- Interactive UAT 3-Step Section & Digital Sign-off -->
         <div class="section-card card">
           <div class="section-heading">
             <span class="heading-icon">✅</span>
@@ -310,6 +335,24 @@
           <div class="uat-steps-list" id="uat-steps-container">
             <!-- Rendered by JS -->
           </div>
+
+          <!-- Digital Acceptance Sign-off Card -->
+          <div class="acceptance-action-card card-inner" id="acceptance-action-card">
+            <div class="acceptance-status-box">
+              <div class="acceptance-badge" id="acceptance-badge">CHỜ NGHIỆM THU</div>
+              <div class="acceptance-desc" id="acceptance-desc">
+                Sau khi tự mình kiểm chứng đạt tất cả các bước UAT, bạn có thể thực hiện <strong>Ký Duyệt Nghiệm Thu Điện Tử</strong> để đóng dấu số chính thức.
+              </div>
+            </div>
+            <button class="btn btn-success" id="btn-sign-acceptance" onclick="openSignAcceptanceModal()">
+              ✍️ Ký Duyệt Nghiệm Thu Số
+            </button>
+          </div>
+
+          <!-- Displayed Certificate Seal (hidden until signed) -->
+          <div id="digital-certificate-display" class="digital-certificate-card" style="display: none;">
+            <!-- Rendered by JS -->
+          </div>
         </div>
       </section>
     </main>
@@ -318,9 +361,135 @@
     <footer class="app-footer">
       <div class="footer-container">
         <p>CodeTrust AI (VibeAuditor) • Nền Tảng Đánh Giá & Thẩm Định Code Cho Non-Tech Founders & PMs</p>
-        <p class="footer-sub">Phát triển với Zero-Hallucination Deterministic Engine + DeepSeek Semantic Reasoning</p>
+        <p class="footer-sub">Hệ thống Multi-Agent & 24 Agent Skills • Zero-Hallucination Deterministic Engine</p>
       </div>
     </footer>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 1: AUDIT HISTORY DRAWER                            -->
+  <!-- ======================================================== -->
+  <div id="history-overlay" class="drawer-overlay" onclick="toggleHistoryDrawer(false)"></div>
+  <aside id="history-drawer" class="history-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <span>📜</span> Lịch Sử Thẩm Định (<span id="drawer-history-count">0</span>)
+      </div>
+      <div class="drawer-actions">
+        <button class="btn btn-sm btn-outline-danger" onclick="clearAllHistory()">Xóa Hết</button>
+        <button class="btn-close" onclick="toggleHistoryDrawer(false)">&times;</button>
+      </div>
+    </div>
+    <div class="drawer-body" id="history-items-container">
+      <!-- Rendered by JS -->
+    </div>
+  </aside>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 2: AUDIT DIFF / COMPARISON INSPECTOR               -->
+  <!-- ======================================================== -->
+  <div id="compare-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>⚖️</span> So Sánh Tiến Trình Khắc Phục Lỗi (Audit Diff)
+        </div>
+        <button class="btn-close" onclick="closeCompareModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="compare-modal-body">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeCompareModal()">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 3: SKILL STORE MARKETPLACE                         -->
+  <!-- ======================================================== -->
+  <div id="skill-store-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>🛍️</span> Cửa Hàng Kỹ Năng (Skill Store Marketplace)
+          <span class="store-subtitle">24 Kỹ Năng Modular Dành Cho Agent & Thẩm Định</span>
+        </div>
+        <button class="btn-close" onclick="closeSkillStoreModal()">&times;</button>
+      </div>
+      <div class="modal-toolbar">
+        <div class="store-search-box">
+          <input type="text" id="store-search-input" class="form-input" placeholder="🔍 Tìm kiếm kỹ năng (ví dụ: OWASP, CVE, Playwright, License, PR...)" oninput="filterStoreSkills()" />
+        </div>
+        <div class="store-category-pills">
+          <button class="store-pill active" data-cat="ALL" onclick="selectStoreCategory('ALL')">Tất cả (24)</button>
+          <button class="store-pill" data-cat="CORE" onclick="selectStoreCategory('CORE')">Core (5)</button>
+          <button class="store-pill" data-cat="OPTIONAL" onclick="selectStoreCategory('OPTIONAL')">Optional (7)</button>
+          <button class="store-pill" data-cat="PREMIUM" onclick="selectStoreCategory('PREMIUM')">Premium (8)</button>
+          <button class="store-pill" data-cat="INTERNAL" onclick="selectStoreCategory('INTERNAL')">Internal (4)</button>
+        </div>
+      </div>
+      <div class="modal-body store-grid" id="store-skills-grid">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="modal-footer store-footer">
+        <span class="store-hint">💡 Gợi ý: Các Core Skills là nền tảng bắt buộc. Bạn có thể bật/tắt các kỹ năng Optional và Premium tùy theo nhu cầu dự án.</span>
+        <button class="btn btn-secondary" onclick="closeSkillStoreModal()">Xong</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 4: SKILL DETAIL SPECIFICATION MODAL                -->
+  <!-- ======================================================== -->
+  <div id="skill-detail-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-dialog modal-md">
+      <div class="modal-header">
+        <div class="modal-title" id="skill-detail-title">Chi Tiết Kỹ Năng</div>
+        <button class="btn-close" onclick="closeSkillDetailModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="skill-detail-body">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeSkillDetailModal()">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 5: DIGITAL ACCEPTANCE SIGN-OFF MODAL               -->
+  <!-- ======================================================== -->
+  <div id="sign-acceptance-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-dialog modal-md">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>✍️</span> Ký Duyệt Biên Bản Nghiệm Thu Điện Tử
+        </div>
+        <button class="btn-close" onclick="closeSignAcceptanceModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Bằng việc ký duyệt, bạn xác nhận đã tự mình kiểm chứng các bước UAT và đồng ý nghiệm thu kỹ thuật đối với phiên bản mã nguồn này.
+        </p>
+        <div class="form-group">
+          <label class="form-label" for="signer-name">Họ và Tên Người Nghiệm Thu:</label>
+          <input type="text" id="signer-name" class="form-input" placeholder="Ví dụ: Nguyễn Văn A" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="signer-role">Vai Trò / Chức Vụ:</label>
+          <input type="text" id="signer-role" class="form-input" placeholder="Ví dụ: Founder / Giám Đốc / Product Manager" value="Product Owner" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="signer-notes">Ghi Chú Bàn Giao / Điều Kiện Thanh Toán:</label>
+          <textarea id="signer-notes" class="form-input form-textarea" rows="3" placeholder="Ví dụ: Đồng ý giải ngân đợt 2 sau khi các lỗi nghiêm trọng đã được kiểm chứng an toàn."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeSignAcceptanceModal()">Hủy</button>
+        <button class="btn btn-success" onclick="confirmSignAcceptance()">Đóng Dấu & Ký Nghiệm Thu</button>
+      </div>
+    </div>
   </div>
 
   <script src="app.js"></script>

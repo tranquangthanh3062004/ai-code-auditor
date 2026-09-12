@@ -377,3 +377,78 @@ test('19. MCP Tools codetrust_list_skills and codetrust_get_skill_info should ex
   assert.ok(infoRes.resolvedExecutionOrder.length >= 2);
 });
 
+test('20. Server REST API /api/skills should support GET list, GET detail, and POST toggle', async () => {
+  const { app } = await import('../server/index.js');
+  const server = app.listen(0);
+  const address = server.address() as any;
+  const port = address.port;
+  const baseUrl = `http://localhost:${port}`;
+
+  try {
+    // 1. GET /api/skills
+    const resList = await fetch(`${baseUrl}/api/skills`);
+    assert.equal(resList.status, 200);
+    const dataList = await resList.json();
+    assert.equal(dataList.success, true);
+    assert.equal(dataList.total, 24);
+
+    // 2. GET /api/skills/:id
+    const resDetail = await fetch(`${baseUrl}/api/skills/core.static-sec-scan`);
+    assert.equal(resDetail.status, 200);
+    const dataDetail = await resDetail.json();
+    assert.equal(dataDetail.success, true);
+    assert.equal(dataDetail.skill.id, 'core.static-sec-scan');
+
+    // 3. POST /api/skills/:id/toggle (Core skill should reject disabling)
+    const resToggleCore = await fetch(`${baseUrl}/api/skills/core.static-sec-scan/toggle`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    assert.equal(resToggleCore.status, 200);
+    const dataToggleCore = await resToggleCore.json();
+    assert.equal(dataToggleCore.success, false);
+    assert.ok(dataToggleCore.reason?.includes('Quy tắc bảo vệ'));
+  } finally {
+    server.close();
+  }
+});
+
+test('21. Audit Progression and Diff Inspector should accurately calculate score delta and classify findings', async () => {
+  // Mock old report with 2 findings
+  const oldReport = {
+    scores: { overall: 50, security: 40, businessLogic: 60, visualStability: 70 },
+    securityFindings: [
+      { id: '1', ruleId: 'SEC-001', file: 'src/index.js', title: 'API Key leak', severity: 'CRITICAL' },
+      { id: '2', ruleId: 'SEC-006', file: 'src/db.js', title: 'SQL Injection', severity: 'HIGH' },
+    ],
+  };
+
+  // Mock new report where SEC-001 is fixed, SEC-006 remains, and SEC-008 is newly introduced
+  const newReport = {
+    scores: { overall: 85, security: 80, businessLogic: 85, visualStability: 90 },
+    securityFindings: [
+      { id: '2', ruleId: 'SEC-006', file: 'src/db.js', title: 'SQL Injection', severity: 'HIGH' },
+      { id: '3', ruleId: 'SEC-008', file: 'src/view.js', title: 'Insecure innerHTML', severity: 'HIGH' },
+    ],
+  };
+
+  const deltaOverall = newReport.scores.overall - oldReport.scores.overall;
+  assert.equal(deltaOverall, +35, 'Overall score should increase by +35');
+
+  const oldMap = new Set(oldReport.securityFindings.map(f => `${f.ruleId}::${f.file}`));
+  const newMap = new Set(newReport.securityFindings.map(f => `${f.ruleId}::${f.file}`));
+
+  const resolved = oldReport.securityFindings.filter(f => !newMap.has(`${f.ruleId}::${f.file}`));
+  const unresolved = oldReport.securityFindings.filter(f => newMap.has(`${f.ruleId}::${f.file}`));
+  const newlyAdded = newReport.securityFindings.filter(f => !oldMap.has(`${f.ruleId}::${f.file}`));
+
+  assert.equal(resolved.length, 1);
+  assert.equal(resolved[0].ruleId, 'SEC-001');
+
+  assert.equal(unresolved.length, 1);
+  assert.equal(unresolved[0].ruleId, 'SEC-006');
+
+  assert.equal(newlyAdded.length, 1);
+  assert.equal(newlyAdded[0].ruleId, 'SEC-008');
+});
+

@@ -198,6 +198,89 @@ app.get('/api/reports/:id', (req, res) => {
   return res.json(cached);
 });
 
+// 6. Skill Store APIs
+app.get('/api/skills', async (req, res) => {
+  try {
+    const { defaultSkillRegistry } = await import('../src/skills/index.js');
+    const category = req.query.category as any;
+    const enabledOnly = req.query.enabledOnly === 'true';
+
+    const skills = defaultSkillRegistry.listSkills({ category, enabledOnly });
+    return res.json({
+      success: true,
+      total: skills.length,
+      skills: skills.map(s => ({
+        ...s,
+        enabled: defaultSkillRegistry.isSkillEnabled(s.id),
+      })),
+    });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Failed to fetch skills' });
+  }
+});
+
+app.get('/api/skills/:id', async (req, res) => {
+  try {
+    const { defaultSkillRegistry } = await import('../src/skills/index.js');
+    const skill = defaultSkillRegistry.getSkill(req.params.id);
+    if (!skill) {
+      return res.status(404).json({ error: `Không tìm thấy Skill: ${req.params.id}` });
+    }
+    const state = defaultSkillRegistry.getSkillState(req.params.id);
+    const executionOrder = defaultSkillRegistry.resolveDependencies(req.params.id);
+    return res.json({
+      success: true,
+      skill,
+      state,
+      executionOrder,
+    });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Failed to get skill details' });
+  }
+});
+
+app.post('/api/skills/:id/toggle', async (req, res) => {
+  try {
+    const { defaultSkillRegistry } = await import('../src/skills/index.js');
+    const { id } = req.params;
+    const { entitlement } = req.body || {};
+
+    const skill = defaultSkillRegistry.getSkill(id);
+    if (!skill) {
+      return res.status(404).json({ error: `Không tìm thấy Skill: ${id}` });
+    }
+
+    const isEnabled = defaultSkillRegistry.isSkillEnabled(id);
+
+    if (isEnabled) {
+      const result = defaultSkillRegistry.disableSkill(id);
+      return res.json({
+        success: result.success,
+        enabled: defaultSkillRegistry.isSkillEnabled(id),
+        reason: result.reason,
+      });
+    } else {
+      // Default to enterprise entitlement for local trial if requested or if specified
+      const ent = entitlement || {
+        tenantId: 'local-user',
+        plan: 'ENTERPRISE',
+        licensedSkillIds: [id],
+        tokenQuota: 1000000,
+        tokensUsed: 0,
+      };
+
+      const result = defaultSkillRegistry.enableSkill(id, ent);
+      return res.json({
+        success: result.success,
+        enabled: defaultSkillRegistry.isSkillEnabled(id),
+        reason: result.reason,
+      });
+    }
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Failed to toggle skill' });
+  }
+});
+
 // 6. Serve static Web UI
 const webDir = path.resolve(process.cwd(), 'web');
 if (fs.existsSync(webDir)) {
