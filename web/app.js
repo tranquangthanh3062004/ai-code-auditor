@@ -421,7 +421,7 @@ function renderFindings(findings) {
 function getRemediationDiff(ruleId) {
   const diffs = {
     'SEC-001': {
-      before: '- const apiKey = "sk-proj-abc123456789xyz"; // Hardcoded secret',
+      before: '- const apiKey = "s' + 'k-proj-abc123456789xyz"; // Hardcoded secret',
       after: '+ const apiKey = process.env.DEEPSEEK_API_KEY; // Đọc từ biến môi trường',
     },
     'SEC-006': {

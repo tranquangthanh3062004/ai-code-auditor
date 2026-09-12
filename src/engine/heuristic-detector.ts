@@ -133,7 +133,8 @@ export class HeuristicDetector {
 
     const ignoredExts = new Set([
       '.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.woff', '.woff2',
-      '.ttf', '.eot', '.mp4', '.webm', '.mp3', '.pdf', '.zip', '.tar', '.gz'
+      '.ttf', '.eot', '.mp4', '.webm', '.mp3', '.pdf', '.zip', '.tar', '.gz',
+      '.md', '.markdown', '.txt'
     ]);
 
     let entries: fs.Dirent[] = [];

@@ -1,0 +1,317 @@
+{
+  "meta": {
+    "auditId": "AUDIT-1789229315415",
+    "projectName": "ai-code-auditor",
+    "timestamp": "23:08:35 12/9/2026",
+    "version": "1.0.0"
+  },
+  "projectInfo": {
+    "name": "ai-code-auditor",
+    "path": "E:\\project\\ai-code-auditor",
+    "framework": "Vite (Modern Frontend)",
+    "packageManager": "pnpm",
+    "entrypoint": "dist/index.js",
+    "devCommand": "pnpm run dev",
+    "detectedPort": 5173,
+    "totalFiles": 56,
+    "totalLinesOfCode": 12997
+  },
+  "scores": {
+    "overall": 9,
+    "security": 0,
+    "businessLogic": 10,
+    "visualStability": 20,
+    "grade": "F"
+  },
+  "executiveSummary": {
+    "headline": "CẢNH BÁO: Phát hiện 4 lỗ hổng nghiêm trọng có thể làm rò rỉ dữ liệu hoặc tài khoản. Tuyệt đối không đưa lên môi trường thật!",
+    "verdict": "REJECTED",
+    "businessImpactText": "Dự án \"ai-code-auditor\" được xây dựng trên nền tảng Vite (Modern Frontend) với quy mô 56 tệp mã nguồn (12997 dòng code). Các tính năng giao diện đã được cấu hình và sẵn sàng cho việc nghiệm thu người dùng.",
+    "keyRisks": [
+      "Rủi ro rò rỉ khóa API hoặc thông tin nhạy cảm ra ngoài.",
+      "Nguy cơ bị tấn công tiêm mã dữ liệu trái phép (Injection / XSS)."
+    ],
+    "recommendation": "Yêu cầu lập trình viên loại bỏ ngay các thông tin nhạy cảm và vá lỗ hổng được liệt kê bên dưới trước khi ký biên bản nghiệm thu."
+  },
+  "securityFindings": [
+    {
+      "id": "FINDING-001",
+      "ruleId": "SEC-001",
+      "severity": "CRITICAL",
+      "title": "Lộ Khóa API OpenAI / DeepSeek trong mã nguồn",
+      "file": "SKILL_PERMISSION_MODEL.md",
+      "line": 46,
+      "codeSnippet": "│  ├── Khóa API riêng: sk-d        pted                         │",
+      "plainExplanation": "Khóa bí mật dùng để gọi AI bị ghi trực tiếp vào code. Bất kỳ ai xem được mã nguồn đều có thể dùng trộm tài khoản của bạn và tiêu hết tiền của bạn.",
+      "remediation": "Chuyển API Key vào tệp .env và đọc qua biến môi trường process.env.DEEPSEEK_API_KEY. Không bao giờ commit key lên GitHub."
+    },
+    {
+      "id": "FINDING-002",
+      "ruleId": "SEC-001",
+      "severity": "CRITICAL",
+      "title": "Lộ Khóa API OpenAI / DeepSeek trong mã nguồn",
+      "file": "SKILL_PERMISSION_MODEL.md",
+      "line": 54,
+      "codeSnippet": "│  ├── Khóa API riêng: sk-d        pted                         │",
+      "plainExplanation": "Khóa bí mật dùng để gọi AI bị ghi trực tiếp vào code. Bất kỳ ai xem được mã nguồn đều có thể dùng trộm tài khoản của bạn và tiêu hết tiền của bạn.",
+      "remediation": "Chuyển API Key vào tệp .env và đọc qua biến môi trường process.env.DEEPSEEK_API_KEY. Không bao giờ commit key lên GitHub."
+    },
+    {
+      "id": "FINDING-003",
+      "ruleId": "SEC-001",
+      "severity": "CRITICAL",
+      "title": "Lộ Khóa API OpenAI / DeepSeek trong mã nguồn",
+      "file": "SKILL_PERMISSION_MODEL.md",
+      "line": 74,
+      "codeSnippet": "| **5. Rò rỉ Secret trong Báo cáo** | Khóa API thật tìm thấy trong code bị in nguyên văn ra file HTML công khai. | Thuật toán Masking tự động che giấu: `sk-p        6789` $\\to$ `sk-proj-...6789`. |",
+      "plainExplanation": "Khóa bí mật dùng để gọi AI bị ghi trực tiếp vào code. Bất kỳ ai xem được mã nguồn đều có thể dùng trộm tài khoản của bạn và tiêu hết tiền của bạn.",
+      "remediation": "Chuyển API Key vào tệp .env và đọc qua biến môi trường process.env.DEEPSEEK_API_KEY. Không bao giờ commit key lên GitHub."
+    },
+    {
+      "id": "FINDING-004",
+      "ruleId": "SEC-001",
+      "severity": "CRITICAL",
+      "title": "Lộ Khóa API OpenAI / DeepSeek trong mã nguồn",
+      "file": "web/app.js",
+      "line": 424,
+      "codeSnippet": "before: '- const apiKey = \"sk-p        9xyz\"; // Hardcoded secret',",
+      "plainExplanation": "Khóa bí mật dùng để gọi AI bị ghi trực tiếp vào code. Bất kỳ ai xem được mã nguồn đều có thể dùng trộm tài khoản của bạn và tiêu hết tiền của bạn.",
+      "remediation": "Chuyển API Key vào tệp .env và đọc qua biến môi trường process.env.DEEPSEEK_API_KEY. Không bao giờ commit key lên GitHub."
+    },
+    {
+      "id": "FINDING-005",
+      "ruleId": "SEC-007",
+      "severity": "HIGH",
+      "title": "Thực thi mã tùy ý không an toàn (Insecure eval / Function)",
+      "file": "web/app.js",
+      "line": 432,
+      "codeSnippet": "before: '- const result = eval        ion);',",
+      "plainExplanation": "Lệnh eval() cho phép chạy bất kỳ đoạn mã văn bản nào như một chương trình. Đây là lỗ hổng nghiêm trọng rất dễ bị chiếm quyền điều khiển.",
+      "remediation": "Tuyệt đối tránh sử dụng eval(). Sử dụng JSON.parse() hoặc các giải pháp xử lý logic an toàn thay thế."
+    },
+    {
+      "id": "FINDING-006",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 43,
+      "codeSnippet": "toast.inn        ML = `",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-007",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 323,
+      "codeSnippet": "risksList.inn        ML = '';",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-008",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 325,
+      "codeSnippet": "risksList.inn        ML = '<li>✅ Không phát hiện rủi ro nghiêm trọng.</li>';",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-009",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 363,
+      "codeSnippet": "container.inn        ML = '';",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-010",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 370,
+      "codeSnippet": "container.inn        ML = `",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-011",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 386,
+      "codeSnippet": "card.inn        ML = `",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-012",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 436,
+      "codeSnippet": "before: '- document.getElementById(\"content\").inn        ML = rawUserInput;',",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-013",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 472,
+      "codeSnippet": "container.inn        ML = '';",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-014",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 478,
+      "codeSnippet": "card.inn        ML = `",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-015",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 623,
+      "codeSnippet": "displayEl.inn        ML = `",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-016",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 715,
+      "codeSnippet": "container.inn        ML = `",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-017",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 724,
+      "codeSnippet": "container.inn        ML = '';",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-018",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 728,
+      "codeSnippet": "card.inn        ML = `",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-019",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 864,
+      "codeSnippet": "body.inn        ML = `",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-020",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 995,
+      "codeSnippet": "container.inn        ML = `",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-021",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 1004,
+      "codeSnippet": "container.inn        ML = '';",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-022",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 1012,
+      "codeSnippet": "card.inn        ML = `",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    },
+    {
+      "id": "FINDING-023",
+      "ruleId": "SEC-008",
+      "severity": "HIGH",
+      "title": "Nguy cơ Tấn công XSS qua dangerouslySetInnerHTML / raw innerHTML",
+      "file": "web/app.js",
+      "line": 1105,
+      "codeSnippet": "body.inn        ML = `",
+      "plainExplanation": "Ứng dụng đang hiển thị mã HTML trực tiếp mà chưa qua màng lọc làm sạch (Sanitization). Kẻ tấn công có thể chèn mã JavaScript độc hại để đánh cắp phiên đăng nhập của người dùng khác.",
+      "remediation": "Dùng thư viện làm sạch DOMPurify trước khi render, hoặc render văn bản thông thường thay vì mã HTML thô."
+    }
+  ],
+  "uatChecklist": [
+    {
+      "id": "UAT-001",
+      "stepNumber": 1,
+      "instruction": "Khởi động ứng dụng bằng lệnh \"pnpm run dev\" và mở trình duyệt tại cổng http://localhost:5173.",
+      "expectedResult": "Trang chủ tải thành công, không bị màn hình trắng và không có thông báo lỗi đỏ trong Console.",
+      "category": "Khởi động & Hiển thị",
+      "testedByAI": true
+    },
+    {
+      "id": "UAT-002",
+      "stepNumber": 2,
+      "instruction": "Nhấp thử vào các nút bấm tương tác chính (nút gửi form, nút đăng nhập hoặc nút thêm vào giỏ hàng).",
+      "expectedResult": "Nút bấm phản hồi ngay lập tức, hiển thị thông báo thành công hoặc chuyển hướng trang mượt mà.",
+      "category": "Tương tác & Logic",
+      "testedByAI": true
+    },
+    {
+      "id": "UAT-003",
+      "stepNumber": 3,
+      "instruction": "Thử nhập dữ liệu sai (để trống các trường bắt buộc, nhập email sai định dạng hoặc số lượng âm) và bấm gửi.",
+      "expectedResult": "Hệ thống hiển thị thông báo nhắc nhở nhẹ nhàng, từ chối dữ liệu sai và không làm sập ứng dụng.",
+      "category": "Xử lý ngoại lệ & An toàn",
+      "testedByAI": true
+    }
+  ]
+}
